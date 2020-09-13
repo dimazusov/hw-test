@@ -1,4 +1,4 @@
-module dimazusov/hw-test/tree/hw01_hello_now
+module dimazusov/hw-test/hw01_hello_now
 
 go 1.14
 
