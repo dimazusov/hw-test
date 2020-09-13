@@ -1,4 +1,4 @@
-module github.com/dimazusov/hw01_hello_now
+module github.com/dimazusov/hw-test
 
 go 1.14
 
