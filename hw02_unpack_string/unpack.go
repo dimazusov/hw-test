@@ -1,4 +1,4 @@
-package hw02_unpack_string //nolint:golint,stylecheck
+package main //nolint:golint,stylecheck
 
 import (
 	"errors"
