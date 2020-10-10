@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var ErrWordNotFound = errors.New("Word not found")
+var ErrWordNotFound = errors.New("word not found")
 
 func Top10(text string) []string {
 	if text == "" {
@@ -24,8 +24,7 @@ func Top10(text string) []string {
 		maxLenMostFreqWords = len(wordsMap)
 	}
 
-
-	for i:=0; i<maxLenMostFreqWords; i++ {
+	for i := 0; i < maxLenMostFreqWords; i++ {
 		count, bestFreqWord, err := getBestFreqWord(wordsMap)
 		if err != nil {
 			log.Fatalln(err)
@@ -40,7 +39,7 @@ func Top10(text string) []string {
 		sort.Strings(words)
 		wordCounts = append(wordCounts, i)
 	}
-	sort.Slice(wordCounts, func (i, j int) bool {return i < j})
+	sort.Slice(wordCounts, func(i, j int) bool { return i < j })
 
 	mostFreqWords := []string{}
 	for _, wordCount := range wordCounts {
