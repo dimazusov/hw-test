@@ -1,4 +1,4 @@
-module github.com/dimazusov/hw03_frequency_analysis
+module github.com/dimazusov/hw-test/hw03_frequency_analysis
 
 go 1.14
 
