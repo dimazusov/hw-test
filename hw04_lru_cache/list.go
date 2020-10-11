@@ -12,14 +12,14 @@ type List interface {
 
 type listItem struct {
 	Value interface{}
-	Next *listItem
-	Prev *listItem
+	Next  *listItem
+	Prev  *listItem
 }
 
 type list struct {
-	len int
+	len   int
 	First *listItem
-	Last *listItem
+	Last  *listItem
 }
 
 func NewList() List {

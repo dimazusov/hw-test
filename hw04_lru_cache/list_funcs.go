@@ -1,4 +1,4 @@
-package hw04_lru_cache
+package hw04_lru_cache //nolint:golint,stylecheck
 
 func (m list) Len() int {
 	return m.len
@@ -24,7 +24,7 @@ func (m *list) PushFront(v interface{}) *listItem {
 	m.len++
 	lItem := &listItem{
 		Value: v,
-		Prev: nil,
+		Prev:  nil,
 	}
 
 	if m.len == 1 {
@@ -44,7 +44,7 @@ func (m *list) PushBack(v interface{}) *listItem {
 	m.len++
 	lItem := &listItem{
 		Value: v,
-		Next: nil,
+		Next:  nil,
 	}
 
 	if m.len == 1 {

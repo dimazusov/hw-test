@@ -10,19 +10,19 @@ type Cache interface {
 
 type lruCache struct {
 	capacity int
-	queue List
-	items map[string]listItem
+	queue    List
+	items    map[string]listItem
 }
 
 type cacheItem struct {
-	Key string
+	Key   string
 	Value interface{}
 }
 
 func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
-		queue: NewList(),
-		items: make(map[string]listItem),
+		queue:    NewList(),
+		items:    make(map[string]listItem),
 	}
 }

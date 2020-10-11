@@ -1,19 +1,19 @@
-package hw04_lru_cache
+package hw04_lru_cache //nolint:golint,stylecheck
 
 func (m *lruCache) Set(key string, value interface{}) bool {
 	cItem := cacheItem{
-		Key: key,
+		Key:   key,
 		Value: value,
 	}
 
 	var lItem *listItem
 	_, wasInCache := m.items[key]
 	if wasInCache {
-		for el := m.queue.Front() ; el != nil; el = el.Next {
+		for el := m.queue.Front(); el != nil; el = el.Next {
 			if el.Value.(cacheItem).Key == key {
 				lItem = el
 				lItem.Value = cacheItem{
-					Key: key,
+					Key:   key,
 					Value: value,
 				}
 
