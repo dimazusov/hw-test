@@ -2,7 +2,6 @@ package hw03_frequency_analysis //nolint:golint,stylecheck
 
 import (
 	"errors"
-	"log"
 	"regexp"
 	"sort"
 	"strings"
@@ -10,76 +9,79 @@ import (
 
 var ErrWordNotFound = errors.New("word not found")
 
+var RegexEndLine = regexp.MustCompile(`[\n\s]+`)
+var RegexCleanSymbol = regexp.MustCompile(`[,\.\";(!-):]|^\-$`)
+
+type MostReqWord struct{
+	Word string
+	Count int
+}
+
 func Top10(text string) []string {
 	if text == "" {
-		return []string{}
+		return nil
 	}
 
-	wordsMap := splitTextToWords(&text)
+	words := splitTextToWords(text)
 
-	maxLenMostFreqWords := 12
-	resMap := make(map[int][]string)
+	sort.SliceStable(words, func(i, j int) bool {
+		return words[i].Count > words[j].Count
+	})
 
-	if len(wordsMap) < maxLenMostFreqWords {
-		maxLenMostFreqWords = len(wordsMap)
-	}
-
-	for i := 0; i < maxLenMostFreqWords; i++ {
-		count, bestFreqWord, err := getBestFreqWord(wordsMap)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		resMap[count] = append(resMap[count], bestFreqWord)
-		delete(wordsMap, bestFreqWord)
-	}
-
-	wordCounts := []int{}
-	for i, words := range resMap {
-		sort.Strings(words)
-		wordCounts = append(wordCounts, i)
-	}
-	sort.Slice(wordCounts, func(i, j int) bool { return i < j })
-
-	mostFreqWords := []string{}
-	for _, wordCount := range wordCounts {
-		mostFreqWords = append(mostFreqWords, resMap[wordCount]...)
-	}
-
-	return mostFreqWords
+	return getMostRequreciesWords(words, 10)
 }
 
-func getBestFreqWord(hm map[string]int) (count int, word string, err error) {
-	maxCount := 0
-	maxCountWord := ""
-	for word, count := range hm {
-		if count > maxCount {
-			maxCount = count
-			maxCountWord = word
+func splitTextToWords(text string) (mostRequrencyWords []MostReqWord) {
+	words := strings.Split(RegexEndLine.ReplaceAllString(text, " "), " ")
+
+	for _, word := range words {
+		replacableWord := RegexCleanSymbol.ReplaceAllString(strings.ToLower(word), "")
+
+		if len(replacableWord) == 0 {
+			continue
+		}
+
+		index, ok := findIndexByWord(mostRequrencyWords, replacableWord)
+		if ok {
+			mostRequrencyWords[index].Count++
+		} else {
+			mostRequrencyWords = append(mostRequrencyWords, MostReqWord{Word: replacableWord, Count: 1})
 		}
 	}
 
-	if maxCountWord == "" {
-		return 0, "", ErrWordNotFound
-	}
-
-	return maxCount, maxCountWord, nil
+	return mostRequrencyWords
 }
 
-func splitTextToWords(text *string) map[string]int {
-	var re = regexp.MustCompile(`[\n\s]+`)
-	textWithoutLineBreakAndTabs := re.ReplaceAllString(*text, " ")
-
-	wordsMap := make(map[string]int)
-	re = regexp.MustCompile(`[,\.\";(!-):]|^\-$`)
-
-	for _, word := range strings.Split(textWithoutLineBreakAndTabs, " ") {
-		replacableWord := re.ReplaceAllString(strings.ToLower(word), "")
-
-		if len(replacableWord) != 0 {
-			wordsMap[replacableWord]++
+func findIndexByWord (mostRequrencyWords []MostReqWord, word string) (int, bool) {
+	for i, mostReqWord := range mostRequrencyWords {
+		if mostReqWord.Word == word {
+			return i, true
 		}
 	}
 
-	return wordsMap
+	return 0, false
+}
+
+func getMostRequreciesWords(reqWords []MostReqWord, maxCountMostRequreciesWords int) (mostReqWords []string) {
+	for i, word := range reqWords {
+		mostReqWords = append(mostReqWords, word.Word)
+
+		if i >= maxCountMostRequreciesWords && !isNextWordHasSameCount(reqWords, i) {
+			break
+		}
+	}
+
+	return mostReqWords
+}
+
+func isNextWordHasSameCount(reqWords []MostReqWord, index int) bool {
+	if len(reqWords) - 1 == index {
+		return false
+	}
+
+	if reqWords[index].Count != reqWords[index+1].Count {
+		return false
+	}
+
+	return true
 }
