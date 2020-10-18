@@ -12,8 +12,8 @@ var ErrWordNotFound = errors.New("word not found")
 var RegexEndLine = regexp.MustCompile(`[\n\s]+`)
 var RegexCleanSymbol = regexp.MustCompile(`[,\.\";(!-):]|^\-$`)
 
-type MostReqWord struct{
-	Word string
+type MostReqWord struct {
+	Word  string
 	Count int
 }
 
@@ -52,7 +52,7 @@ func splitTextToWords(text string) (mostRequrencyWords []MostReqWord) {
 	return mostRequrencyWords
 }
 
-func findIndexByWord (mostRequrencyWords []MostReqWord, word string) (int, bool) {
+func findIndexByWord(mostRequrencyWords []MostReqWord, word string) (int, bool) {
 	for i, mostReqWord := range mostRequrencyWords {
 		if mostReqWord.Word == word {
 			return i, true
@@ -75,7 +75,7 @@ func getMostRequreciesWords(reqWords []MostReqWord, maxCountMostRequreciesWords 
 }
 
 func isNextWordHasSameCount(reqWords []MostReqWord, index int) bool {
-	if len(reqWords) - 1 == index {
+	if len(reqWords)-1 == index {
 		return false
 	}
 
