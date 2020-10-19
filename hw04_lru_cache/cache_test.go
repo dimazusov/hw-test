@@ -49,6 +49,45 @@ func TestCache(t *testing.T) {
 		require.Nil(t, val)
 	})
 
+	t.Run("queue cache logic", func(t *testing.T) {
+		c := NewCache(2)
+
+		c.Set("aaa", 100)
+		c.Set("bbb", 200)
+		c.Set("ccc", 300)
+
+		_, ok := c.Get("aaa")
+		require.False(t, ok)
+		val, ok := c.Get("bbb")
+		require.True(t, ok)
+		require.Equal(t, val, 200)
+		val, ok = c.Get("ccc")
+		require.True(t, ok)
+		require.Equal(t, val, 300)
+
+		c.Set("ddd", 400)
+
+		_, ok = c.Get("bbb")
+		require.False(t, ok)
+		val, ok = c.Get("ccc")
+		require.True(t, ok)
+		require.Equal(t, val, 300)
+		val, ok = c.Get("ddd")
+		require.True(t, ok)
+		require.Equal(t, val, 400)
+
+		c.Set("eee", 500)
+
+		_, ok = c.Get("ccc")
+		require.False(t, ok)
+		val, ok = c.Get("ddd")
+		require.True(t, ok)
+		require.Equal(t, val, 400)
+		val, ok = c.Get("eee")
+		require.True(t, ok)
+		require.Equal(t, val, 500)
+	})
+
 	t.Run("purge logic", func(t *testing.T) {
 		c := NewCache(5)
 

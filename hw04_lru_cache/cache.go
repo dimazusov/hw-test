@@ -34,6 +34,7 @@ func (m *lruCache) Set(key Key, value interface{}) bool {
 		cItem.Value = value
 		item.Value = cItem
 		m.items[key] = item
+		m.queue.MoveToFront(&item)
 
 		return true
 	}
@@ -54,12 +55,13 @@ func (m *lruCache) Set(key Key, value interface{}) bool {
 }
 
 func (m *lruCache) Get(key Key) (interface{}, bool) {
-	cItem, ok := m.items[key]
+	item, ok := m.items[key]
 	if !ok {
 		return nil, false
 	}
+	m.queue.MoveToFront(&item)
 
-	return cItem.Value.(cacheItem).Value, true
+	return item.Value.(cacheItem).Value, true
 }
 
 func (m *lruCache) Clear() {
