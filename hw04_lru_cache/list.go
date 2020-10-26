@@ -73,6 +73,7 @@ func (m *list) PushBack(v interface{}) *listItem {
 	m.len++
 	lItem := &listItem{
 		Value: v,
+		Prev:  nil,
 		Next:  nil,
 	}
 
