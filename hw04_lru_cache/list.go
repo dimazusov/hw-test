@@ -60,8 +60,13 @@ func (m *list) PushFront(v interface{}) *listItem {
 		return lItem
 	}
 
+	//fmt.Println("len", m.len)
+	//fmt.Println("First", m.First)
+	//fmt.Println("Last", m.Last)
 	lItem.Next = m.First
-	m.First.Prev = lItem
+	if m.First != nil {
+		m.First.Prev = lItem
+	}
 	m.First = lItem
 
 	return lItem
