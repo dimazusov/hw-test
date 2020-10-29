@@ -1,4 +1,4 @@
-module github.com/dimazusov/hw05_parallel_execution
+module github.com/dimazusov/hw-test/hw05_parallel_execution
 
 go 1.14
 
