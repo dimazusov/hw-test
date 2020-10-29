@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -43,6 +43,9 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var example1 = "У него сегодня был хороший день. И у двери стоял стул..."
+var example2 = "Что-то лежало на столе, и это что-то мешало ему есть"
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
@@ -56,5 +59,15 @@ func TestTop10(t *testing.T) {
 			expected := []string{"он", "и", "а", "что", "ты", "не", "если", "-", "то", "Кристофер"}
 			require.ElementsMatch(t, expected, Top10(text))
 		}
+	})
+
+	t.Run("less than max frequencies of length", func(t *testing.T) {
+		expected := []string{"был", "двери", "день", "и", "него", "сегодня", "стоял", "стул", "хороший", "у"}
+		require.Subset(t, expected, Top10(example1))
+	})
+
+	t.Run("cammel case", func(t *testing.T) {
+		expected := []string{"что-то", "на", "это", "лежало", "мешало", "столе", "ему", "и", "есть"}
+		require.Subset(t, expected, Top10(example2))
 	})
 }
