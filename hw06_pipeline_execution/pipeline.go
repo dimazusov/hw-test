@@ -22,7 +22,6 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	for val := range in {
 		values = append(values, val)
 	}
-
 	isDone := false
 	mutex := sync.Mutex{}
 
@@ -35,7 +34,6 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(values))
-
 	stageResCh := make(St, len(values))
 
 	for i, val := range values {
@@ -56,10 +54,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 				val = <-stage(inCh)
 			}
 
-			stageResCh <- StageResult{
-				WorkerIndex: workerIndex,
-				Value:       val,
-			}
+			stageResCh <- StageResult{workerIndex, val}
 		}(i, val)
 	}
 	wg.Wait()
