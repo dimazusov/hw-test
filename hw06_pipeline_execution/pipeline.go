@@ -54,7 +54,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 				val = <-stage(inCh)
 			}
 
-			stageResCh <- StageResult{workerIndex, val}
+			stageResCh <- StageResult{WorkerIndex: workerIndex, Value: val}
 		}(i, val)
 	}
 	wg.Wait()
