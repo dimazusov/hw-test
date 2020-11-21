@@ -1,6 +1,7 @@
 package hw06_pipeline_execution //nolint:golint,stylecheck
 
 import (
+	"math/rand"
 	"strconv"
 	"testing"
 	"time"
@@ -64,7 +65,7 @@ func TestPipeline(t *testing.T) {
 	t.Run("done case", func(t *testing.T) {
 		in := make(Bi)
 		done := make(Bi)
-		data := []int{1, 2, 3, 4, 5}
+		data := []int{1}
 
 		// Abort after 200ms
 		abortDur := sleepPerStage * 2
@@ -88,6 +89,48 @@ func TestPipeline(t *testing.T) {
 		elapsed := time.Since(start)
 
 		require.Len(t, result, 0)
+		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
+	})
+
+	t.Run("empty case", func(t *testing.T) {
+		in := make(Bi)
+		close(in)
+
+		result := make([]string, 0, 10)
+		for s := range ExecutePipeline(in, nil, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.Len(t, result, 0)
+	})
+
+	t.Run("much data case", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		data := []int{}
+		dataLength := 100
+		for i := 0; i < dataLength; i++ {
+			data = append(data, rand.Intn(1000000))
+		}
+
+		// Abort after 200ms
+		abortDur := sleepPerStage * 2
+		go func() {
+			<-time.After(abortDur)
+			close(done)
+		}()
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		start := time.Now()
+		ExecutePipeline(in, done, stages...)
+		elapsed := time.Since(start)
+
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 }
