@@ -1,12 +1,16 @@
 package main
 
 import (
-	"errors"
 	"io"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 var (
+	ErrMessageOpenFile       = "open file error"
+	ErrMessageReadFile       = "read file error"
+	ErrMessageWriteFile      = "write file error"
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
@@ -15,13 +19,13 @@ const bufferSize = 2048
 func Copy(fromPath string, toPath string, offset, limit int64) error {
 	fromFile, err := os.Open(fromPath) // For read access.
 	if err != nil {
-		return err
+		return errors.Wrap(err, ErrMessageOpenFile)
 	}
 	defer fromFile.Close()
 
 	toFile, err := os.Create(toPath) // For read access.
 	if err != nil {
-		return err
+		return errors.Wrap(err, ErrMessageOpenFile)
 	}
 	defer toFile.Close()
 
@@ -35,16 +39,16 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 		b := make([]byte, bufferSize)
 		n, err := fromFile.Read(b)
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return nil
 			}
-			return err
+			return errors.Wrap(err, ErrMessageReadFile)
 		}
 
 		if countWritesBytes+bufferSize > limit && limit != 0 {
 			_, err = toFile.Write(b[:countWritesBytes+limit])
 			if err != nil {
-				return err
+				return errors.Wrap(err, ErrMessageWriteFile)
 			}
 
 			return nil
@@ -55,7 +59,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 		}
 		_, err = toFile.Write(b)
 		if err != nil {
-			return err
+			return errors.Wrap(err, ErrMessageWriteFile)
 		}
 
 		countWritesBytes += int64(n)

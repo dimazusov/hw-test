@@ -22,7 +22,7 @@ func main() {
 
 	err := Copy(from, to, offset, limit)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Error: ", err)
 	}
 
 	log.Println("Successful copy")
