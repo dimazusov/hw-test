@@ -8,10 +8,10 @@ import (
 )
 
 var (
-	ErrMessageOpenFile       = "open file error"
-	ErrMessageReadFile       = "read file error"
-	ErrMessageWriteFile      = "write file error"
-	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
+	ErrMessageOpenFile              = "open file error"
+	ErrMessageReadFile              = "read file error"
+	ErrMessageWriteFile             = "write file error"
+	ErrMessageOffsetExceedsFileSize = "offset exceeds file size"
 )
 
 const bufferSize = 2048
@@ -31,7 +31,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 
 	_, err = fromFile.Seek(offset, 0)
 	if err != nil {
-		return ErrOffsetExceedsFileSize
+		return errors.Wrap(err, ErrMessageOffsetExceedsFileSize)
 	}
 
 	countWritesBytes := int64(0)
