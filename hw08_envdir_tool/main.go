@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 )
@@ -20,6 +19,5 @@ func main() {
 	}
 
 	res := RunCmd(os.Args[2:], env)
-	fmt.Println(res)
 	os.Exit(res)
 }

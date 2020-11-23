@@ -11,9 +11,6 @@ import (
 
 type Environment map[string]string
 
-const trimString = " \t"
-const tSymbols = "\x00"
-
 var ErrReadingMessage = "read error"
 var ErrOpenMessage = "open error"
 var ErrScanMessage = "scan error"
@@ -36,8 +33,10 @@ func ReadDir(dir string) (Environment, error) {
 		scanner := bufio.NewScanner(file)
 		ok := scanner.Scan()
 		if ok {
-			s := strings.Join(strings.Split(scanner.Text(), tSymbols), " ")
-			env[f.Name()] = strings.Trim(s, trimString)
+			// терминальные нули (0x00) заменяются на перевод строки (\n);
+			s := strings.Join(strings.Split(scanner.Text(), "\x00"), "\n")
+			// пробелы и табуляция в конце T удаляются
+			env[f.Name()] = strings.TrimRight(s, " \t")
 		} else {
 			env[f.Name()] = ""
 		}
