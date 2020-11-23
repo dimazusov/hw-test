@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 )
@@ -18,5 +19,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	os.Exit(RunCmd(os.Args[2:], env))
+	res := RunCmd(os.Args[2:], env)
+	fmt.Println(res)
+	os.Exit(res)
 }
