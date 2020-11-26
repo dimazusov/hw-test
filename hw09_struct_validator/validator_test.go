@@ -3,7 +3,11 @@ package hw09_struct_validator //nolint:golint,stylecheck
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
+
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -38,19 +42,119 @@ type (
 
 func TestValidate(t *testing.T) {
 	tests := []struct {
-		in          interface{}
-		expectedErr error
+		in   interface{}
+		errs []ValidationError
 	}{
 		{
-			// Place your code here
+			in: User{
+				ID: "asdgasdgawegawegasdvdsfasfasfjwdssoi",
+				Name: "test",
+				Age: 20,
+				Email: "vasiliy@mail.ru",
+				Role: "stuff",
+				Phones: []string{"79524399025", "75924858843"},
+				meta: []byte("[]"),
+			},
+			errs: []ValidationError{},
 		},
-		// ...
-		// Place your code here
+		{
+			in: App{
+				Version: "23141",
+			},
+			errs: []ValidationError{},
+		},
+		{
+			in: Token{
+				Header: []byte("fasdgasdg"),
+			},
+			errs: []ValidationError{},
+		},
+		{
+			in: Response{
+				Code : 200,
+			},
+			errs: []ValidationError{
+				ValidationError{
+					Field:"Response",
+					Err: errors.Wrap(ErrValidatorIsNotValid, ErrMessageValidatorMustContaintsTwoValues),
+				},
+			},
+		},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
-			// Place your code here
+			errs := Validate(tt.in)
+			if len(errs) != len(tt.errs) {
+				for _, err := range errs {
+					fmt.Println(fmt.Sprintf("field: %s, err: %v", err.Field, err.Err))
+				}
+				require.Equal(t,len(errs),len(tt.errs))
+			}
+
+			for i, _ := range errs {
+				errors.As(errs[i].Err, tt.errs[i].Err)
+			}
 		})
 	}
+}
+
+func TestIsValidatorsAllow(t *testing.T) {
+	allowedValidators := []string{"len", "regexp", "in"}
+	validators := []string{"len", "res"}
+
+	err := isValidatorsAllow(allowedValidators, validators)
+	require.NotNil(t, err)
+
+	allowedValidators = []string{"len", "regexp", "in"}
+	validators = []string{"len", "in"}
+
+	err = isValidatorsAllow(allowedValidators, validators)
+	require.Nil(t, err)
+}
+
+func TestCreateValidatorFromString(t *testing.T) {
+	validator, err := CreateValidatorFromString("min:10", reflect.Int)
+	require.NotNil(t, validator)
+	require.Nil(t, err)
+}
+
+func TestValidateValidatorValue(t *testing.T) {
+	err := ValidateValidatorValue("in", "123,42", reflect.String)
+	require.Nil(t, err)
+
+	err = ValidateValidatorValue("max", "123", reflect.String)
+	require.Nil(t, err)
+
+	err = ValidateValidatorValue("max", "str123", reflect.String)
+	require.NotNil(t, err)
+}
+
+func TestCreateValidatorsFromString(t *testing.T) {
+	validators, errs := CreateValidatorsFromString(`min:12|max:20`, reflect.Int)
+	require.NotNil(t, validators)
+	require.Nil(t, errs)
+
+	require.Equal(t, "min", validators[0].Name)
+	require.Equal(t, "12", validators[0].Value)
+
+	require.Equal(t, "max", validators[1].Name)
+	require.Equal(t, "20", validators[1].Value)
+}
+
+func TestValidatorValidate(t *testing.T) {
+	validators, errs := CreateValidatorsFromString(`min:12|max:20`, reflect.Int)
+	require.Nil(t, errs)
+	value := 12
+	for _, validator := range validators {
+		err := validator.Validate(value)
+		require.Nil(t, err)
+	}
+
+	validators, errs = CreateValidatorsFromString(`min:12`, reflect.Int)
+	require.Nil(t, errs)
+	value = 11
+
+	err := validators[0].Validate(value)
+	require.NotNil(t, err)
 }
