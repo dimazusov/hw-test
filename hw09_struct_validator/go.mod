@@ -1,4 +1,4 @@
-module github.com/dimazusov/hw-test/hw07_file_copying
+module github.com/dimazusov/hw-test/hw09_struct_validator
 
 go 1.14
 
