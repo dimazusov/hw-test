@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,13 +46,13 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			in: User{
-				ID: "asdgasdgawegawegasdvdsfasfasfjwdssoi",
-				Name: "test",
-				Age: 20,
-				Email: "vasiliy@mail.ru",
-				Role: "stuff",
+				ID:     "asdgasdgawegawegasdvdsfasfasfjwdssoi",
+				Name:   "test",
+				Age:    20,
+				Email:  "vasiliy@mail.ru",
+				Role:   "stuff",
 				Phones: []string{"79524399025", "75924858843"},
-				meta: []byte("[]"),
+				meta:   []byte("[]"),
 			},
 			errs: []ValidationError{},
 		},
@@ -71,12 +70,44 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			in: Response{
-				Code : 200,
+				Code: 200,
 			},
 			errs: []ValidationError{
-				ValidationError{
-					Field:"Response",
-					Err: errors.Wrap(ErrValidatorIsNotValid, ErrMessageValidatorMustContaintsTwoValues),
+				{
+					Field: "Response",
+					Err:   ErrValidatorIsNotValid,
+				},
+			},
+		},
+		{
+			in: App{
+				Version: "2314",
+			},
+			errs: []ValidationError{
+				{
+					Field: "App",
+					Err: ErrLengthNotEqual,
+				},
+			},
+		},
+		{
+			in: User{
+				ID:     "asdgasdgawegawegasdvdsfasfasfjwdssoi",
+				Name:   "test",
+				Age:    20,
+				Email:  "@tes@t@mail.ru",
+				Role:   "stuffffffffffff",
+				Phones: []string{"79524399025", "75924858843"},
+				meta:   []byte("[]"),
+			},
+			errs: []ValidationError{
+				{
+					Field: "User",
+					Err: ErrRegexNotFound,
+				},
+				{
+					Field: "Role",
+					Err: ErrInStringNotFound,
 				},
 			},
 		},
@@ -85,32 +116,13 @@ func TestValidate(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			errs := Validate(tt.in)
-			if len(errs) != len(tt.errs) {
-				for _, err := range errs {
-					fmt.Println(fmt.Sprintf("field: %s, err: %v", err.Field, err.Err))
-				}
-				require.Equal(t,len(errs),len(tt.errs))
-			}
+			require.Equal(t, len(errs), len(tt.errs))
 
 			for i, _ := range errs {
-				errors.As(errs[i].Err, tt.errs[i].Err)
+				require.ErrorIs(t, errs[i].Err, tt.errs[i].Err)
 			}
 		})
 	}
-}
-
-func TestIsValidatorsAllow(t *testing.T) {
-	allowedValidators := []string{"len", "regexp", "in"}
-	validators := []string{"len", "res"}
-
-	err := isValidatorsAllow(allowedValidators, validators)
-	require.NotNil(t, err)
-
-	allowedValidators = []string{"len", "regexp", "in"}
-	validators = []string{"len", "in"}
-
-	err = isValidatorsAllow(allowedValidators, validators)
-	require.Nil(t, err)
 }
 
 func TestCreateValidatorFromString(t *testing.T) {

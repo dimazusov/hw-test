@@ -2,18 +2,13 @@ package hw09_struct_validator //nolint:golint,stylecheck
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
-)
 
-type Validation struct {
-	validators []Validator
-	errors     []ValidationError
-}
+	"github.com/pkg/errors"
+)
 
 type ValidationError struct {
 	Field string
@@ -26,14 +21,14 @@ var ErrValidatorIsNotAlowed = errors.New("validator is not allowed")
 var ErrValidatorIsNotValid = errors.New("validator is not valid")
 var ErrValidatorNameIsNotAlowed = errors.New("validator name is not allowed")
 var ErrLengthNotEqual = errors.New("length not equal")
-var ErrRegexStringNotFound = errors.New("string not found")
-var ErrInStringNotFound = errors.New("string not found")
+var ErrRegexNotFound = errors.New("not found by regex")
+var ErrInStringNotFound = errors.New("value not found in allow")
 var ErrMax = errors.New("min value")
 var ErrMin = errors.New("max value")
 var ErrIn = errors.New("in value")
 
 var ErrMessageValidatorValueIsNotAlowed = "validator value is not allowed"
-var ErrMessageValidatorMustContaintsTwoValues = "validator value must containts two values"
+var ErrMessageValidatorMustContaintsTwoValues = "validator value must contains two values"
 var ErrMessageValidatorMustBeInteger = "validator value must be integer"
 var ErrMessageValidatorMustHaveOneOrMoreSymbols = "validator value must have one or more symbols"
 var ErrMessageValidatorErrror = "validator error"
@@ -61,97 +56,107 @@ type Validator struct {
 }
 
 func (m Validator) Validate(value interface{}) error {
-	switch m.Kind {
+	switch m.Kind { //nolint:exhaustive
 	case reflect.String:
 		v := reflect.ValueOf(value).String()
 
-		if v == stringDefaultValue {
-			return nil
-		}
-
-		switch m.Name {
-		case lenValidator:
-			validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
-			if err != nil {
-				return err
-			}
-
-			if len(v) != int(validatorValue) {
-				return errors.Wrap(ErrLengthNotEqual, fmt.Sprintf("given length: %d, expected length: %d", len(v), validatorValue))
-			}
-
-			return nil
-		case regexpValidator:
-			r, err := regexp.Compile(m.Value)
-			if err != nil {
-				return errors.Wrap(err, ErrMessageValidatorErrror)
-			}
-
-			if !r.MatchString(v) {
-				return ErrRegexStringNotFound
-			}
-
-			return nil
-		case inValidator:
-			for _, val := range strings.Split(m.Value, ",") {
-				if val == v {
-					return nil
-				}
-			}
-
-			return ErrInStringNotFound
-		}
-		break
+		return m.validateStringValue(v)
 	case reflect.Int:
 		v := reflect.ValueOf(value).Int()
 
-		if v == intDefaultValue {
-			return nil
+		return m.validateIntValue(v)
+	}
+
+	return nil
+}
+
+func (m Validator) validateStringValue(v string) error {
+	if v == stringDefaultValue {
+		return nil
+	}
+
+	switch m.Name {
+	case lenValidator:
+		validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
+		if err != nil {
+			return err
 		}
 
-		switch m.Name {
-		case minValidator:
-			validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
-			if err != nil {
-				return err
-			}
-
-			if v < validatorValue {
-				return ErrMin
-			}
-
-			return nil
-		case maxValidator:
-			validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
-			if err != nil {
-				return err
-			}
-
-			if v > validatorValue {
-				return ErrMax
-			}
-
-			return nil
-		case inValidator:
-			res := strings.Split(m.Value, ",")
-
-			from, err := strconv.ParseInt(res[0], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			to, err := strconv.ParseInt(res[1], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			if v < from || v > to {
-				return ErrIn
-			}
-
-			return nil
+		if len(v) != int(validatorValue) {
+			return errors.Wrap(ErrLengthNotEqual, fmt.Sprintf("given length: %d, expected length: %d", len(v), validatorValue))
 		}
-		break
+
+		return nil
+	case regexpValidator:
+		r, err := regexp.Compile(m.Value)
+		if err != nil {
+			return errors.Wrap(err, ErrMessageValidatorErrror)
+		}
+
+		if !r.MatchString(v) {
+			return ErrRegexNotFound
+		}
+
+		return nil
+	case inValidator:
+		for _, val := range strings.Split(m.Value, ",") {
+			if val == v {
+				return nil
+			}
+		}
+
+		return ErrInStringNotFound
+	}
+
+	return nil
+}
+
+func (m Validator) validateIntValue(v int64) error {
+	if v == intDefaultValue {
+		return nil
+	}
+
+	switch m.Name {
+	case minValidator:
+		validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		if v < validatorValue {
+			return ErrMin
+		}
+
+		return nil
+	case maxValidator:
+		validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		if v > validatorValue {
+			return ErrMax
+		}
+
+		return nil
+	case inValidator:
+		res := strings.Split(m.Value, ",")
+
+		from, err := strconv.ParseInt(res[0], 10, 64)
+		if err != nil {
+			return err
+		}
+
+		to, err := strconv.ParseInt(res[1], 10, 64)
+		if err != nil {
+			return err
+		}
+
+		if v < from || v > to {
+			return ErrIn
+		}
+
+		return nil
 	}
 
 	return nil
@@ -178,6 +183,7 @@ func Validate(v interface{}) (errs []ValidationError) {
 		fieldName := val.Type().Name()
 
 		validators, errsValidators := getValidatorsForField(field, tag, fieldName)
+
 		if errsValidators != nil {
 			errs = append(errs, errsValidators...)
 			continue
@@ -262,24 +268,6 @@ func getValidatorsForField(field reflect.Value, tag reflect.StructTag, fieldName
 	return validators, errs
 }
 
-func isValidatorsAllow(allowValidators, validators []string) error {
-	for _, validator := range validators {
-		isAllow := false
-		for _, allowValidator := range allowValidators {
-			if allowValidator == validator {
-				isAllow = true
-				break
-			}
-		}
-
-		if !isAllow {
-			return ErrValidatorIsNotAlowed
-		}
-	}
-
-	return nil
-}
-
 func CreateValidatorsFromString(str string, kind reflect.Kind) (validators []*Validator, errs []error) {
 	validatorsStrings := strings.Split(str, "|")
 	for _, validatorString := range validatorsStrings {
@@ -320,7 +308,7 @@ func CreateValidatorFromString(str string, kind reflect.Kind) (*Validator, error
 }
 
 func ValidateValidatorName(validatorName string, kind reflect.Kind) error {
-	allowTypes, _ := validateTypes[kind]
+	allowTypes := validateTypes[kind]
 
 	isAllow := false
 	for _, allowName := range allowTypes {
@@ -338,55 +326,68 @@ func ValidateValidatorName(validatorName string, kind reflect.Kind) error {
 }
 
 func ValidateValidatorValue(validatorName, validatorValue string, kind reflect.Kind) error {
+	switch kind { //nolint:exhaustive
+	case reflect.String:
+		return ValidateStringValidator(validatorName, validatorValue)
+	case reflect.Int:
+		return ValidateIntValidator(validatorName, validatorValue)
+	default:
+		return ErrValidatorNameIsNotAlowed
+	}
+}
+
+func ValidateStringValidator(validatorName, validatorValue string) error {
+	switch validatorName {
+	case inValidator:
+		res := strings.Split(validatorValue, ",")
+		for _, v := range res {
+			if v == "" {
+				return errors.Wrap(ErrValidatorIsNotValid, ErrMessageValidatorMustHaveOneOrMoreSymbols)
+			}
+		}
+		return nil
+	case lenValidator:
+		_, err := strconv.ParseInt(validatorValue, 0, 64)
+		if err != nil {
+			return errors.Wrap(err, ErrMessageValidatorValueIsNotAlowed)
+		}
+		return nil
+	case regexpValidator:
+		return nil
+	}
+
+	return ErrValidatorNameIsNotAlowed
+}
+
+func ValidateIntValidator(validatorName, validatorValue string) error {
 	switch validatorName {
 	case minValidator:
 		_, err := strconv.ParseInt(validatorValue, 0, 64)
 		if err != nil {
 			return errors.Wrap(err, ErrMessageValidatorValueIsNotAlowed)
 		}
-		break
+		return nil
 	case maxValidator:
 		_, err := strconv.ParseInt(validatorValue, 0, 64)
 		if err != nil {
 			return errors.Wrap(err, ErrMessageValidatorValueIsNotAlowed)
 		}
-		break
+		return nil
 	case inValidator:
-		if kind == reflect.String {
-			res := strings.Split(validatorValue, ",")
-			for _, v := range res {
-				if v == "" {
-					return errors.Wrap(ErrValidatorIsNotValid, ErrMessageValidatorMustHaveOneOrMoreSymbols)
-				}
-			}
-		} else {
-			res := strings.Split(validatorValue, ",")
-			if len(res) != 2 {
-				return errors.Wrap(ErrValidatorIsNotValid, ErrMessageValidatorMustContaintsTwoValues)
-			}
-
-			_, err := strconv.ParseInt(res[0], 0, 64)
-			if err != nil {
-				return errors.Wrap(err, ErrMessageValidatorMustBeInteger)
-			}
-
-			_, err = strconv.ParseInt(res[1], 0, 64)
-			if err != nil {
-				return errors.Wrap(err, ErrMessageValidatorMustBeInteger)
-			}
+		res := strings.Split(validatorValue, ",")
+		if len(res) != 2 {
+			return errors.Wrap(ErrValidatorIsNotValid, ErrMessageValidatorMustContaintsTwoValues)
 		}
-		break
-	case lenValidator:
-		_, err := strconv.ParseInt(validatorValue, 0, 64)
+
+		_, err := strconv.ParseInt(res[0], 0, 64)
 		if err != nil {
-			return errors.Wrap(err, ErrMessageValidatorValueIsNotAlowed)
+			return errors.Wrap(err, ErrMessageValidatorMustBeInteger)
 		}
-		break
-	case regexpValidator:
-		break
-	default:
-		return ErrValidatorNameIsNotAlowed
-	}
 
-	return nil
+		_, err = strconv.ParseInt(res[1], 0, 64)
+		if err != nil {
+			return errors.Wrap(err, ErrMessageValidatorMustBeInteger)
+		}
+	}
+	return ErrValidatorNameIsNotAlowed
 }
