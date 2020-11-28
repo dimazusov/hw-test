@@ -17,7 +17,6 @@ type ValidationError struct {
 
 var ErrNotStruct = errors.New("value is not a struct")
 var ErrTypeNotSupport = errors.New("type do not support for validate")
-var ErrValidatorIsNotAlowed = errors.New("validator is not allowed")
 var ErrValidatorIsNotValid = errors.New("validator is not valid")
 var ErrValidatorNameIsNotAlowed = errors.New("validator name is not allowed")
 var ErrLengthNotEqual = errors.New("length not equal")
@@ -27,6 +26,9 @@ var ErrMax = errors.New("min value")
 var ErrMin = errors.New("max value")
 var ErrIn = errors.New("in value")
 
+var ErrMessageRegexValues = "value must be in %s"
+var ErrMessageStringNotFound = "value %s do not match by regex %s"
+var ErrMessageWrongValidatorValue = "wrong validator value"
 var ErrMessageValidatorValueIsNotAlowed = "validator value is not allowed"
 var ErrMessageValidatorMustContaintsTwoValues = "validator value must contains two values"
 var ErrMessageValidatorMustBeInteger = "validator value must be integer"
@@ -79,7 +81,7 @@ func (m Validator) validateStringValue(v string) error {
 	case lenValidator:
 		validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
 		if err != nil {
-			return err
+			return errors.Wrap(err, ErrMessageWrongValidatorValue)
 		}
 
 		if len(v) != int(validatorValue) {
@@ -94,7 +96,7 @@ func (m Validator) validateStringValue(v string) error {
 		}
 
 		if !r.MatchString(v) {
-			return ErrRegexNotFound
+			return errors.Wrap(ErrRegexNotFound, fmt.Sprintf(ErrMessageRegexValues, v, m.Value))
 		}
 
 		return nil
@@ -105,7 +107,7 @@ func (m Validator) validateStringValue(v string) error {
 			}
 		}
 
-		return ErrInStringNotFound
+		return errors.Wrap(ErrInStringNotFound, fmt.Sprintf(ErrMessageRegexValues, m.Value))
 	}
 
 	return nil
