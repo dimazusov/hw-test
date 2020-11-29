@@ -9,7 +9,6 @@ import (
 
 var (
 	ErrMessageOpenFile              = "open file error"
-	ErrMessageReadFile              = "read file error"
 	ErrMessageWriteFile             = "write file error"
 	ErrMessageOffsetExceedsFileSize = "offset exceeds file size"
 )
@@ -37,7 +36,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	countWritesBytes := int64(0)
 	for {
 		curBufSize := int64(bufferSize)
-		if countWritesBytes + curBufSize > limit && limit != 0 {
+		if countWritesBytes+curBufSize > limit && limit != 0 {
 			curBufSize = limit - countWritesBytes
 		}
 
@@ -50,7 +49,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 		}
 		countWritesBytes += n
 
-		if countWritesBytes >= limit && limit != 0{
+		if countWritesBytes >= limit && limit != 0 {
 			return nil
 		}
 	}
