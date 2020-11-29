@@ -36,32 +36,22 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 
 	countWritesBytes := int64(0)
 	for {
-		b := make([]byte, bufferSize)
-		n, err := fromFile.Read(b)
+		curBufSize := int64(bufferSize)
+		if countWritesBytes + curBufSize > limit && limit != 0 {
+			curBufSize = limit - countWritesBytes
+		}
+
+		n, err := io.CopyN(toFile, fromFile, curBufSize)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				return nil
 			}
-			return errors.Wrap(err, ErrMessageReadFile)
-		}
-
-		if countWritesBytes+bufferSize > limit && limit != 0 {
-			_, err = toFile.Write(b[:countWritesBytes+limit])
-			if err != nil {
-				return errors.Wrap(err, ErrMessageWriteFile)
-			}
-
-			return nil
-		}
-
-		if n != bufferSize {
-			b = b[:n]
-		}
-		_, err = toFile.Write(b)
-		if err != nil {
 			return errors.Wrap(err, ErrMessageWriteFile)
 		}
+		countWritesBytes += n
 
-		countWritesBytes += int64(n)
+		if countWritesBytes >= limit && limit != 0{
+			return nil
+		}
 	}
 }
