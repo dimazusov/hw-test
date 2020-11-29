@@ -136,10 +136,10 @@ func TestValidateValidatorValue(t *testing.T) {
 	err := ValidateValidatorValue("in", "123,42", reflect.String)
 	require.Nil(t, err)
 
-	err = ValidateValidatorValue("max", "123", reflect.String)
+	err = ValidateValidatorValue("max", "123", reflect.Int)
 	require.Nil(t, err)
 
-	err = ValidateValidatorValue("max", "str123", reflect.String)
+	err = ValidateValidatorValue("max", "str123", reflect.Int)
 	require.NotNil(t, err)
 }
 
