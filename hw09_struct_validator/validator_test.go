@@ -2,6 +2,7 @@ package hw09_struct_validator //nolint:golint,stylecheck
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -119,7 +120,7 @@ func TestValidate(t *testing.T) {
 			require.Equal(t, len(errs), len(tt.errs))
 
 			for i, _ := range errs {
-				require.ErrorIs(t, errs[i].Err, tt.errs[i].Err)
+				require.True(t, errors.Is(errs[i].Err, tt.errs[i].Err))
 			}
 		})
 	}

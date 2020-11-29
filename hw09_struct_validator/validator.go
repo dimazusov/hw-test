@@ -24,7 +24,6 @@ var ErrRegexNotFound = errors.New("not found by regex")
 var ErrInStringNotFound = errors.New("value not found in allow")
 var ErrMax = errors.New("min value")
 var ErrMin = errors.New("max value")
-var ErrIn = errors.New("in value")
 
 var ErrMessageRegexValues = "value must be in %s"
 var ErrMessageLengthNotEqual = "given length: %d, expected length: %d"
@@ -34,7 +33,7 @@ var ErrMessageInDigits = "%d value is not found in validator"
 var ErrMessageInStrings = "%s value is not found in validator"
 var ErrMessageValidatorIsNotAlowed = "%s validator is not allowed"
 var ErrMessageNotStruct = "%s is not struct"
-var ErrMessageWrongValidatorValue = "wrong validator value"
+var ErrMessageWrongValidatorValue = "%s wrong validator value"
 var ErrMessageValidatorValueIsNotAlowed = "validator value is not allowed"
 var ErrMessageValidatorMustContaintsTwoValues = "validator value must contains two values"
 var ErrMessageValidatorMustBeInteger = "validator value must be integer"
@@ -139,11 +138,11 @@ func (m Validator) validateIntValue(v int64) error {
 	case maxValidator:
 		validatorValue, err := strconv.ParseInt(m.Value, 10, 64)
 		if err != nil {
-			return errors.Wrap(err, ErrMessageWrongValidatorValue)
+			return errors.Wrap(err, fmt.Sprintf(ErrMessageWrongValidatorValue, validatorValue))
 		}
 
 		if v > validatorValue {
-			return errors.Wrap(ErrMax,  fmt.Sprintf(ErrMessageMaxValue, v, validatorValue))
+			return errors.Wrap(ErrMax, fmt.Sprintf(ErrMessageMaxValue, v, validatorValue))
 		}
 
 		return nil
@@ -152,12 +151,12 @@ func (m Validator) validateIntValue(v int64) error {
 
 		from, err := strconv.ParseInt(res[0], 10, 64)
 		if err != nil {
-			return errors.Wrap(err, ErrMessageWrongValidatorValue)
+			return errors.Wrap(err, fmt.Sprintf(ErrMessageWrongValidatorValue, res[0]))
 		}
 
 		to, err := strconv.ParseInt(res[1], 10, 64)
 		if err != nil {
-			return errors.Wrap(err, ErrMessageWrongValidatorValue)
+			return errors.Wrap(err, fmt.Sprintf(ErrMessageWrongValidatorValue, res[1]))
 		}
 
 		if v < from || v > to {
@@ -297,7 +296,7 @@ func CreateValidatorsFromString(str string, kind reflect.Kind) (validators []*Va
 func CreateValidatorFromString(str string, kind reflect.Kind) (*Validator, error) {
 	values := strings.Split(str, ":")
 	if len(values) != 2 {
-		return nil, ErrValidatorIsNotValid
+		return nil, errors.Wrap(ErrValidatorIsNotValid, fmt.Sprintf(ErrMessageValidatorIsNotAlowed, str))
 	}
 
 	if err := ValidateValidatorName(values[0], kind); err != nil {
