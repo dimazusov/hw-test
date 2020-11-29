@@ -28,9 +28,11 @@ var ErrIn = errors.New("in value")
 
 var ErrMessageRegexValues = "value must be in %s"
 var ErrMessageLengthNotEqual = "given length: %d, expected length: %d"
-var ErrMessageStringNotFound = "value %s do not match by regex %s"
+var ErrMessageMaxValue = "%d is more than %d"
+var ErrMessageMinValue = "%d is less than %d"
+var ErrMessageInDigits = "%d value is not found in validator"
+var ErrMessageInStrings = "%s value is not found in validator"
 var ErrMessageValidatorIsNotAlowed = "%s validator is not allowed"
-
 var ErrMessageNotStruct = "%s is not struct"
 var ErrMessageWrongValidatorValue = "wrong validator value"
 var ErrMessageValidatorValueIsNotAlowed = "validator value is not allowed"
@@ -111,7 +113,7 @@ func (m Validator) validateStringValue(v string) error {
 			}
 		}
 
-		return errors.Wrap(ErrInStringNotFound, fmt.Sprintf(ErrMessageRegexValues, m.Value))
+		return errors.Wrap(ErrInStringNotFound, fmt.Sprintf(ErrMessageInStrings, m.Value))
 	}
 
 	return nil
@@ -130,7 +132,7 @@ func (m Validator) validateIntValue(v int64) error {
 		}
 
 		if v < validatorValue {
-			return ErrMin
+			return errors.Wrap(ErrMin, fmt.Sprintf(ErrMessageMinValue, v, validatorValue))
 		}
 
 		return nil
@@ -141,7 +143,7 @@ func (m Validator) validateIntValue(v int64) error {
 		}
 
 		if v > validatorValue {
-			return ErrMax
+			return errors.Wrap(ErrMax,  fmt.Sprintf(ErrMessageMaxValue, v, validatorValue))
 		}
 
 		return nil
@@ -159,7 +161,7 @@ func (m Validator) validateIntValue(v int64) error {
 		}
 
 		if v < from || v > to {
-			return ErrIn
+			return errors.Wrap(ErrMin, fmt.Sprintf(ErrMessageInDigits, v))
 		}
 
 		return nil
