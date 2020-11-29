@@ -95,7 +95,7 @@ func TestValidate(t *testing.T) {
 			in: User{
 				ID:     "asdgasdgawegawegasdvdsfasfasfjwdssoi",
 				Name:   "test",
-				Age:    20,
+				Age:    21,
 				Email:  "@tes@t@mail.ru",
 				Role:   "stuffffffffffff",
 				Phones: []string{"79524399025", "75924858843"},
