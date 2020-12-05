@@ -6,7 +6,7 @@ import (
 	"github.com/dimazusov/hw-test/hw10_program_optimization"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
+	_ "net/http/pprof" // nolint: gci
 )
 
 var data = `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid_qui_ea@Browsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}
@@ -17,7 +17,7 @@ var data = `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliqui
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < 10; i++ {
-		_, err := hw10_program_optimization.GetDomainStat(bytes.NewBufferString(data), "com")
+		_, err := hw10_program_optimization.GetDomainStat(bytes.NewBufferString(data), "com") // nolint: gci
 		if err != nil {
 			log.Println(err)
 		}
