@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"io"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type UserEmail struct {
@@ -12,6 +14,9 @@ type UserEmail struct {
 }
 
 type DomainStat map[string]int
+
+const ErrMessageReadLine = "cannot read line"
+const ErrMessageUnmarshal = "cannot unmarshal"
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	i := 0
@@ -22,14 +27,14 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	for {
 		line, _, err := bufReader.ReadLine()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return domainStat, nil
 			}
-			return nil, err
+			return nil, errors.Wrap(err, ErrMessageReadLine)
 		}
 
 		if err = userEmail.UnmarshalJSON(line); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, ErrMessageUnmarshal)
 		}
 
 		if userEmail.IsEmailHasDomain(domain) {

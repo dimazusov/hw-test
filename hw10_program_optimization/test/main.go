@@ -17,9 +17,15 @@ var data = `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliqui
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < 10; i++ {
-		hw10_program_optimization.GetDomainStat(bytes.NewBufferString(data), "com")
+		_, err := hw10_program_optimization.GetDomainStat(bytes.NewBufferString(data), "com")
+		if err != nil {
+			log.Println(err)
+		}
 	}
-	w.Write([]byte("ok"))
+	_, err := w.Write([]byte("ok"))
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // go tool pprof -http=":8080" http://127.0.0.1:7070/debug/pprof/profile?second=5
