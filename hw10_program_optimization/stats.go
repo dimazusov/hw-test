@@ -48,7 +48,7 @@ func (m *UserEmail) IsEmailHasDomain(domain string) bool {
 	fullDomain := strings.ToLower(strings.SplitN(m.Email, "@", 2)[1])
 	m.setEmailDomain(fullDomain)
 
-	return strings.SplitN(fullDomain, ".", 2)[1] != domain
+	return strings.SplitN(fullDomain, ".", 2)[1] == domain
 }
 
 func (m *UserEmail) setEmailDomain(domain string) {
