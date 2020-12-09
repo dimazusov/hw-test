@@ -47,7 +47,11 @@ func TestSplit(t *testing.T) {
 	q = "RoseSmith@Browsecat.com"
 	q = "5Moore@Teklist.net"
 	q = "nulla@Linktype.com"
-	fmt.Println(strings.ToLower(strings.SplitN(q, "@", 2)[1]))
+
+	//fmt.Println(strings.ToLower(strings.SplitN(q, "@", 2)[1]))
+
+	fmt.Println(strings.HasSuffix(q,"@"))
+
 }
 
 func BenchmarkGetDomainStat(b *testing.B) {

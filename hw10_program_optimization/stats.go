@@ -17,11 +17,12 @@ type DomainStat map[string]int
 
 const ErrMessageReadLine = "cannot read line"
 const ErrMessageUnmarshal = "cannot unmarshal"
+const DefaultDomainStatSize = 700
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	i := 0
 	userEmail := UserEmail{}
-	domainStat := make(DomainStat, 700)
+	domainStat := make(DomainStat, DefaultDomainStatSize)
 	bufReader := bufio.NewReader(r)
 
 	for {
@@ -50,8 +51,16 @@ func (m *UserEmail) IsEmailHasDomain(domain string) bool {
 		return false
 	}
 
+	if !strings.Contains(domain, "@") {
+		return false
+	}
+
 	fullDomain := strings.ToLower(strings.SplitN(m.Email, "@", 2)[1])
 	m.setEmailDomain(fullDomain)
+
+	if !strings.Contains(fullDomain, ".") {
+		return false
+	}
 
 	return strings.SplitN(fullDomain, ".", 2)[1] == domain
 }
