@@ -51,7 +51,7 @@ func (m *UserEmail) IsEmailHasDomain(domain string) bool {
 		return false
 	}
 
-	if !strings.Contains(domain, "@") {
+	if !strings.Contains(m.Email, "@") {
 		return false
 	}
 
