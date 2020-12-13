@@ -1,4 +1,4 @@
-package main
+package hw11_telnet_client
 
 import (
 	"bufio"
