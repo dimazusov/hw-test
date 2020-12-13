@@ -1,4 +1,4 @@
-package hw11_telnet_client
+package hw11_telnet_client //nolint:golint,stylecheck
 
 import (
 	"bytes"

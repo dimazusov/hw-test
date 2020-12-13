@@ -1,4 +1,4 @@
-package hw11_telnet_client
+package hw11_telnet_client //nolint:golint,stylecheck
 
 import (
 	"bufio"
@@ -19,7 +19,6 @@ type TelnetClient interface {
 type tClient struct {
 	address string
 	timeout time.Duration
-	ln      net.Listener
 	in      io.ReadCloser
 	out     io.Writer
 	conn    net.Conn
