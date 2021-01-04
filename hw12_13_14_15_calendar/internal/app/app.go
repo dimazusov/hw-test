@@ -2,28 +2,54 @@ package app
 
 import (
 	"context"
-
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 )
 
-type App struct {
-	// TODO
+type app struct {
+	logger Logger
+	rep Repository
 }
 
 type Logger interface {
-	// TODO
+	Debug(data interface{}) error
+	Info(data interface{}) error
+	Warn(data interface{}) error
+	Error(data interface{}) error
+	Close() error
 }
 
-type Storage interface {
-	// TODO
+type Repository interface {
+	Create(ctx context.Context, event domain.Event) (newID uint, err error)
+	Update(ctx context.Context, event domain.Event) (err error)
+	Delete(ctx context.Context, eventID uint) (err error)
+	GetEventByID(ctx context.Context, eventID uint) (event domain.Event, err error)
+	GetEventsByParams(ctx context.Context, params GettingEventParams) (events []domain.Event, err error)
 }
 
-func New(logger Logger, storage Storage) *App {
-	return &App{}
+type App interface {
+	LogInfo(interface{}) error
 }
 
-func (a *App) CreateEvent(ctx context.Context, id string, title string) error {
-	return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+// GettingEventParams structure for getting events
+type GettingEventParams struct {
+	IDs         []uint
+	Title       string
+	FromTime    uint
+	ToTime      uint
+	ExactTime   uint
+	Timezone    uint
+	UserID      uint
+	Page        uint
+	CountOnPage uint
 }
 
-// TODO
+func New(logger Logger, repository Repository) App {
+	return &app{
+		logger: logger,
+		rep: repository,
+	}
+}
+
+func (m *app) LogInfo(data interface{}) error {
+	return m.logger.Info(data)
+}
