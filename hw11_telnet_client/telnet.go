@@ -1,4 +1,4 @@
-package hw11_telnet_client //nolint:golint,stylecheck
+package main //nolint:golint,stylecheck
 
 import (
 	"bufio"
