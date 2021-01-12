@@ -17,10 +17,10 @@ func TestNewConfig(t *testing.T) {
 	require.Equal(t, "debug", cfg.Logger.Level)
 	require.Equal(t, "log/log.txt", cfg.Logger.Path)
 
-	require.Equal(t, "postgres", cfg.Db.Postgres.Dialect)
-	require.Equal(t, "host=localhost port=5401 dbname=postgres user=postgres password=postgres sslmode=disable", cfg.Db.Postgres.Dsn)
+	require.Equal(t, "postgres", cfg.DB.Postgres.Dialect)
+	require.Equal(t, "host=localhost port=5401 dbname=postgres user=postgres password=postgres sslmode=disable", cfg.DB.Postgres.Dsn)
 
-	require.Equal(t, 20, cfg.Db.Memory.MaxCount)
+	require.Equal(t, uint(20), cfg.DB.Memory.MaxSize)
 
 	require.Equal(t, "memory", cfg.Repository.Type)
 }

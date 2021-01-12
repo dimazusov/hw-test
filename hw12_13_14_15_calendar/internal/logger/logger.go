@@ -2,10 +2,11 @@ package logger
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 var ErrLevelNotExists = errors.New("level not exists")
@@ -50,7 +51,7 @@ func New(filePath string, level string) (Logger, error) {
 	}
 
 	return &logger{
-		file: f,
+		file:  f,
 		level: levelVal,
 	}, nil
 }
@@ -60,19 +61,19 @@ func (m *logger) Debug(data interface{}) error {
 }
 
 func (m *logger) Info(data interface{}) error {
-	return m.write(data, debugLevel)
+	return m.write(data, infoLevel)
 }
 
 func (m *logger) Warn(data interface{}) error {
-	return m.write(data, debugLevel)
+	return m.write(data, warnLevel)
 }
 
 func (m *logger) Error(data interface{}) error {
-	return m.write(data, debugLevel)
+	return m.write(data, errLevel)
 }
 
 func (m *logger) Close() error {
-	err := m.Close()
+	err := m.file.Close()
 	if err != nil {
 		return errors.Wrap(err, "cannot close file")
 	}

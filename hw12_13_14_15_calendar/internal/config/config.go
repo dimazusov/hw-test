@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+
 	"github.com/heetch/confita"
 	"github.com/heetch/confita/backend/file"
 	"github.com/pkg/errors"
@@ -13,13 +14,13 @@ type Config struct {
 		Port string `config:"host"`
 	} `config:"server"`
 	Logger struct {
-		Path string `config:"path"`
+		Path  string `config:"path"`
 		Level string `config:"level"`
 	} `config:"logger"`
-	Db struct {
+	DB struct {
 		Postgres struct {
 			Dialect string `config:"dialect"`
-			Dsn string `config:"dsn"`
+			Dsn     string `config:"dsn"`
 		} `config:"postgres"`
 		Memory struct {
 			MaxSize uint `config:"maxsize"`

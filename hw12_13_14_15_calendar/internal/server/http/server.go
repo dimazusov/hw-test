@@ -2,38 +2,38 @@ package internalhttp
 
 import (
 	"context"
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
-	"github.com/pkg/errors"
 	"net/http"
 	"time"
+
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
+	"github.com/pkg/errors"
 )
 
 type Server struct {
 	host string
 	port string
-	app Application
-	srv *http.Server
+	app  Application
+	srv  *http.Server
 }
 
 type Application interface {
 	LogInfo(data interface{}) error
 }
 
-func NewServer(cfg config.Config, app Application) *Server {
+func NewServer(cfg *config.Config, app Application) *Server {
 	return &Server{
 		host: cfg.Server.Host,
 		port: cfg.Server.Port,
-		app: app,
+		app:  app,
 	}
 }
 
 func (m *Server) Start() error {
 	router := NewGinRouter(m.app)
 
-	m.srv = &http.Server{
-		Addr:    m.host+":"+m.port,
-		Handler: router,
-	}
+	m.srv = &http.Server{}
+	m.srv.Addr = m.host + ":" + m.port
+	m.srv.Handler = router
 
 	err := m.srv.ListenAndServe()
 	if err != nil {
@@ -48,7 +48,7 @@ func (m *Server) Stop() error {
 	defer cancel()
 
 	err := m.srv.Shutdown(ctx)
-	if err != nil{
+	if err != nil {
 		return errors.Wrap(err, "cannot shutdown server")
 	}
 

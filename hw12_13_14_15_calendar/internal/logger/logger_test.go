@@ -2,10 +2,12 @@ package logger
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestLogger(t *testing.T) {
@@ -22,5 +24,9 @@ func TestLogger(t *testing.T) {
 	require.Nil(t, err)
 
 	b, err := ioutil.ReadAll(file)
-	require.Equal(t, "01 Jan 21 17:57 MSK debug: test, data", string(bytes.TrimRight(b,"\n")))
+	require.Nil(t, err)
+
+	formatedTime := time.Now().Format(time.RFC822)
+	loggerString := fmt.Sprintf("%s info: test, data", formatedTime)
+	require.Equal(t, loggerString, string(bytes.TrimRight(b, "\n")))
 }

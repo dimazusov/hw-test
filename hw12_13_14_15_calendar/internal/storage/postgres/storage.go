@@ -1,8 +1,10 @@
+//nolint:golint
 package postgresstorage
 
 import (
 	"context"
 	"database/sql"
+
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -22,7 +24,7 @@ type Storage interface {
 	Update(ctx context.Context, event domain.Event) (err error)
 	Delete(ctx context.Context, eventID uint) (err error)
 	GetEventByID(ctx context.Context, eventID uint) (event domain.Event, err error)
-	GetEventsByParams(ctx context.Context, params GettingEventParams) (events []domain.Event, err error)
+	GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error)
 }
 
 func New(driverName, dsn string) (Storage, error) {
@@ -32,8 +34,8 @@ func New(driverName, dsn string) (Storage, error) {
 	}
 
 	return &postgresStorage{
-		conn: conn,
-		dsn: dsn,
+		conn:       conn,
+		dsn:        dsn,
 		driverName: driverName,
 	}, nil
 }
@@ -62,13 +64,13 @@ func (m *postgresStorage) Create(ctx context.Context, event domain.Event) (newID
 		event.Time,
 		event.Timezone,
 		event.Duration,
-		event.Describtion,
+		event.Description,
 		event.UserID,
 		event.NotificationTime,
 	}
 
-		query := "INSERT INTO event (title, time, timezone, duration, description, user_id, notification_time) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7);"
+	query := "INSERT INTO event (title, time, timezone, duration, description, user_id, notification_time) " +
+		"VALUES ($1, $2, $3, $4, $5, $6, $7);"
 
 	res, err := m.conn.ExecContext(ctx, query, params...)
 	if err != nil {
@@ -89,7 +91,7 @@ func (m *postgresStorage) Update(ctx context.Context, event domain.Event) (err e
 		event.Time,
 		event.Timezone,
 		event.Duration,
-		event.Describtion,
+		event.Description,
 		event.UserID,
 		event.NotificationTime,
 		event.ID,
@@ -142,72 +144,65 @@ func (m *postgresStorage) Delete(ctx context.Context, eventID uint) (err error) 
 
 func (m *postgresStorage) GetEventByID(ctx context.Context, eventID uint) (event domain.Event, err error) {
 	query := "select id, title, time, timezone, duration, description, user_id, notification_time " +
-	"FROM event WHERE id = $1"
+		"FROM event WHERE id = $1"
 
 	err = m.conn.GetContext(ctx, &event, query, eventID)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return event, errors.Wrap(ErrRecordNotFound, "cannot get event")
 	}
 
 	return event, nil
 }
 
-func (m *postgresStorage) GetEventsByParams(ctx context.Context, params GettingEventParams) (events []domain.Event, err error) {
+func (m *postgresStorage) GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error) {
 	query := "select id, title, time, timezone, duration, description, user_id, notification_time " +
 		"FROM event WHERE 1 "
 	qParams := []interface{}{}
 
-	if params.ExactTime != 0 {
-		query += "AND time = ? "
-		qParams = append(qParams, params.ExactTime + params.Timezone)
-	} else {
-		if params.FromTime != 0 {
-			query += "AND time >= ? "
-			qParams = append(qParams, params.FromTime+ params.Timezone)
-		}
-		if params.ToTime != 0 {
-			query += "AND time <= ? "
-			qParams = append(qParams, params.ToTime + params.Timezone)
-		}
-	}
-
-	if params.UserID != 0 {
+	userID, ok := params["userID"].(uint)
+	if ok {
 		query += " user_id = ? "
-		qParams = append(qParams, params.UserID)
+		qParams = append(qParams, userID)
 	}
 
-	if params.Title != "" {
+	title, ok := params["userID"].(string)
+	if ok {
 		query += " title = ? "
-		qParams = append(qParams, params.Title)
+		qParams = append(qParams, title)
 	}
 
-	if len(params.IDs) > 0  {
+	ids, ok := params["ids"]
+	if ok {
 		query += " id IN (?) "
-		qParams = append(qParams, params.IDs)
+		qParams = append(qParams, ids)
 	}
 
-	if params.CountOnPage != 0 {
+	countOnPage, ok := params["countOnPage"].(uint)
+	if ok {
 		query += " LIMIT ?"
-		qParams = append(qParams, params.IDs)
+		qParams = append(qParams, countOnPage)
 	}
 
-	if params.Page != 0 {
+	page, ok := params["page"].(uint)
+	if ok {
 		query += " OFFSET ?"
-		qParams = append(qParams, (params.Page-1)*params.CountOnPage)
+		qParams = append(qParams, (page-1)*countOnPage)
 	}
 
-	rows, err := m.conn.QueryContext(ctx, query, qParams...)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot get events")
-	}
+	rows, _ := m.conn.QueryContext(ctx, query, qParams...)
+	defer rows.Close()
 
 	for rows.Next() {
 		var e domain.Event
-		err := rows.Scan(&e.ID, &e.Title, &e.Time, &e.Timezone, &e.Duration, &e.Describtion, &e.UserID, &e.NotificationTime)
+		err := rows.Scan(&e.ID, &e.Title, &e.Time, &e.Timezone, &e.Duration, &e.Description, &e.UserID, &e.NotificationTime)
 		if err != nil {
 			return nil, errors.Wrap(err, "cannot get events")
 		}
 		events = append(events, e)
+	}
+
+	if rows.Err() != nil {
+		return nil, errors.Wrap(rows.Err(), "cannot get events")
 	}
 
 	return events, nil

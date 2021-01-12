@@ -7,7 +7,7 @@ import (
 func NewGinRouter(app Application) *gin.Engine {
 	router := gin.Default()
 
-	router.Use(func (c *gin.Context) {
+	router.Use(func(c *gin.Context) {
 		loggingMiddleware(c, app)
 	})
 
