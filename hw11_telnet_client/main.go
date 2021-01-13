@@ -41,8 +41,6 @@ func main() {
 		port = os.Args[2]
 	}
 
-	fmt.Println(fmt.Sprintf("%s:%s", host, port))
-	fmt.Println(d)
 	client := telnet.NewTelnetClient(fmt.Sprintf("%s:%s", host, port), d, os.Stdin, os.Stdout)
 
 	err := client.Connect()
@@ -60,5 +58,6 @@ func main() {
 		client.Send()
 		wg.Done()
 	}()
+
 	wg.Wait()
 }
