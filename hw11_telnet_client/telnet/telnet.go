@@ -1,4 +1,4 @@
-package telnet //nolint:golint,stylecheck
+package telnet
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type TelnetClient interface {
+type Client interface {
 	Connect() error
 	Close() error
 	Send() error
@@ -24,7 +24,7 @@ type tClient struct {
 	conn    net.Conn
 }
 
-func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
+func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) Client {
 	return &tClient{
 		address: address,
 		timeout: timeout,

@@ -51,11 +51,17 @@ func main() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 	go func() {
-		client.Receive()
+		err := client.Receive()
+		if err != nil {
+			log.Println(err)
+		}
 		wg.Done()
 	}()
 	go func() {
-		client.Send()
+		err := client.Send()
+		if err != nil {
+			log.Println(err)
+		}
 		wg.Done()
 	}()
 
