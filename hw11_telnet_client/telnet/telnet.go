@@ -1,7 +1,8 @@
-package main //nolint:golint,stylecheck
+package telnet //nolint:golint,stylecheck
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net"
 	"time"
@@ -70,6 +71,7 @@ func (m *tClient) Receive() error {
 	r := bufio.NewReader(m.conn)
 	for {
 		b, _, err := r.ReadLine()
+		fmt.Println("string ----"+string(b)+"-------")
 		if errors.Is(err, io.EOF) {
 			return nil
 		}
