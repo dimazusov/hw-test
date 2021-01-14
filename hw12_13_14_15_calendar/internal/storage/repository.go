@@ -6,7 +6,7 @@ import (
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	memorystorage "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlstorage "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage/postgres"
+	sqlstorage "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/pkg/errors"
 )
 

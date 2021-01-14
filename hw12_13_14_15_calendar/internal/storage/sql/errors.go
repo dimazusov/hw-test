@@ -1,4 +1,4 @@
-package postgresstorage
+package sql
 
 import "errors"
 
