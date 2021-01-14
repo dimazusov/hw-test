@@ -3,7 +3,6 @@ package internalhttp
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/pkg/errors"
@@ -28,7 +27,7 @@ func NewServer(cfg *config.Config, app Application) *Server {
 	}
 }
 
-func (m *Server) Start() error {
+func (m *Server) Start(ctx context.Context) error {
 	router := NewGinRouter(m.app)
 
 	m.srv = &http.Server{}
@@ -43,10 +42,15 @@ func (m *Server) Start() error {
 	return nil
 }
 
-func (m *Server) Stop() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
+//func (s *Server) Start(ctx context.Context) error {
+//	// TODO
+//	select {
+//	case <-ctx.Done():
+//		return nil
+//	}
+//}
 
+func (m *Server) Stop(ctx context.Context) error {
 	err := m.srv.Shutdown(ctx)
 	if err != nil {
 		return errors.Wrap(err, "cannot shutdown server")

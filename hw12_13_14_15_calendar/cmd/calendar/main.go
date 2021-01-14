@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
@@ -37,24 +40,29 @@ func main() {
 
 	calendar := app.New(logger, rep.(app.Repository))
 	server := internalhttp.NewServer(config, calendar)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	go func() {
 		signals := make(chan os.Signal, 1)
-		signal.Notify(signals)
+		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
 
 		<-signals
 		signal.Stop(signals)
+		cancel()
 
-		if err := server.Stop(); err != nil {
-			err = logger.Error("failed to stop http server: " + err.Error())
-			if err != nil {
-				log.Println(err)
-			}
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		if err := server.Stop(ctx); err != nil {
+			logger.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	if err = server.Start(); err != nil {
-		log.Fatalln(err)
+	logger.Info("calendar is running...")
+
+	if err := server.Start(ctx); err != nil {
+		logger.Error("failed to start http server: " + err.Error())
 		os.Exit(1)
 	}
 }
