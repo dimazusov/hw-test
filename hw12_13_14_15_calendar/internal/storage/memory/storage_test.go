@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-
 func TestMemStorage_GetEventByID(t *testing.T) {
 	repository, err := New(20)
 	require.Nil(t, err)
@@ -17,7 +16,7 @@ func TestMemStorage_GetEventByID(t *testing.T) {
 		Time:             10,
 		Timezone:         0,
 		Duration:         0,
-		Describtion:      "desc",
+		Description:      "desc",
 		UserID:           23,
 		NotificationTime: 9,
 	}
@@ -40,7 +39,7 @@ func TestMemStorage_Create(t *testing.T) {
 		Time:             10,
 		Timezone:         0,
 		Duration:         0,
-		Describtion:      "desc",
+		Description:      "desc",
 		UserID:           23,
 		NotificationTime: 9,
 	}
@@ -59,7 +58,7 @@ func TestMemStorage_Delete(t *testing.T) {
 		Time:             10,
 		Timezone:         0,
 		Duration:         0,
-		Describtion:      "desc",
+		Description:      "desc",
 		UserID:           23,
 		NotificationTime: 9,
 	}
@@ -84,7 +83,7 @@ func TestMemStorage_Update(t *testing.T) {
 		Time:             10,
 		Timezone:         0,
 		Duration:         0,
-		Describtion:      "desc",
+		Description:      "desc",
 		UserID:           23,
 		NotificationTime: 9,
 	}
@@ -95,7 +94,7 @@ func TestMemStorage_Update(t *testing.T) {
 
 	event.ID = newID
 	event.Title = "event title"
-	event.Describtion = "event description"
+	event.Description = "event description"
 
 	err = repository.Update(nil, event)
 	require.Nil(t, err)
@@ -104,5 +103,5 @@ func TestMemStorage_Update(t *testing.T) {
 	require.Nil(t, err)
 
 	require.Equal(t, "event title", event.Title)
-	require.Equal(t, "event description", event.Describtion)
+	require.Equal(t, "event description", event.Description)
 }
