@@ -1,6 +1,26 @@
 package main
 
+import (
+	"log"
+	"os"
+	"time"
+)
+
 func main() {
-	// Place your code here
-	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
+	var address string
+	var timeout time.Duration
+
+	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
+	err := client.Connect()
+	if err != nil {
+		log.Fatal(err, "cannot connect")
+	}
+	defer client.Close()
+
+	go func() {
+		client.Receive()
+	}()
+	go func() {
+		client.Send()
+	}()
 }

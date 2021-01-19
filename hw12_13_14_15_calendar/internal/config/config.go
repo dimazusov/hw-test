@@ -10,8 +10,14 @@ import (
 
 type Config struct {
 	Server struct {
-		Host string `config:"host"`
-		Port string `config:"host"`
+		Http struct {
+			Host string `config:"host"`
+			Port string `config:"host"`
+		}
+		Grpc struct {
+			Host string `config:"host"`
+			Port string `config:"host"`
+		}
 	} `config:"server"`
 	Logger struct {
 		Path  string `config:"path"`

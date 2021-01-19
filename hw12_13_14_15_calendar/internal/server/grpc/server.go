@@ -1,18 +1,19 @@
-package internalhttp
+package grpc
 
 import (
 	"context"
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
-	"net/http"
-
+	"fmt"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
-	"github.com/pkg/errors"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
+	"google.golang.org/grpc"
+	"log"
+	"net"
 )
 
 type Server struct {
-	app Application
-	cfg *config.Config
-	srv *http.Server
+	addr string
+	srv  *grpc.Server
 }
 
 type Application interface {
@@ -26,32 +27,32 @@ type Application interface {
 }
 
 func NewServer(cfg *config.Config, app Application) *Server {
+	grpcSrv := grpc.NewServer()
+	eventsServer := newEventService(app)
+
+	pb.RegisterEventsServer(grpcSrv, eventsServer)
+
 	return &Server{
-		cfg: cfg,
-		app: app,
+		srv:  grpcSrv,
+		addr: fmt.Sprintf("%s:%s", cfg.Server.Grpc.Host, cfg.Server.Grpc.Port),
 	}
 }
 
 func (m *Server) Start(ctx context.Context) error {
-	router := NewGinRouter(m.app)
-
-	m.srv = &http.Server{}
-	m.srv.Addr = m.cfg.Server.Http.Host + ":" + m.cfg.Server.Http.Host
-	m.srv.Handler = router
-
-	err := m.srv.ListenAndServe()
+	lsn, err := net.Listen("tcp", m.addr)
 	if err != nil {
-		return errors.Wrap(err, "cannot listen and serve")
+		log.Fatal(err)
+	}
+
+	log.Printf("starting server on %s", lsn.Addr().String())
+	if err := m.srv.Serve(lsn); err != nil {
+		log.Fatal(err)
 	}
 
 	return nil
 }
 
 func (m *Server) Stop(ctx context.Context) error {
-	err := m.srv.Shutdown(ctx)
-	if err != nil {
-		return errors.Wrap(err, "cannot shutdown server")
-	}
-
+	m.srv.Stop()
 	return nil
 }
