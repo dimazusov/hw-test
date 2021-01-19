@@ -2,6 +2,7 @@ package telnet
 
 import (
 	"bufio"
+	"context"
 	"io"
 	"net"
 	"time"
@@ -10,7 +11,7 @@ import (
 )
 
 type Client interface {
-	Connect() error
+	Connect(ctx context.Context) error
 	Close() error
 	Send() error
 	Receive() error
@@ -33,13 +34,18 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 	}
 }
 
-func (m *tClient) Connect() error {
+func (m *tClient) Connect(ctx context.Context) error {
 	var err error
 
 	m.conn, err = net.DialTimeout("tcp", m.address, m.timeout)
 	if err != nil {
 		return errors.Wrap(err, "cannot connect")
 	}
+
+	go func() {
+		<-ctx.Done()
+		m.conn.Close()
+	}()
 
 	return nil
 }
