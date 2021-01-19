@@ -5,12 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
-
-	"os"
 
 	"github.com/dimazusov/hw-test/hw11_telnet_client/telnet"
 )
