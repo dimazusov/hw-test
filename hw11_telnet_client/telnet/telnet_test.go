@@ -1,7 +1,8 @@
-package main
+package telnet //nolint:golint,stylecheck
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"net"
 	"sync"
@@ -30,7 +31,7 @@ func TestTelnetClient(t *testing.T) {
 			require.NoError(t, err)
 
 			client := NewTelnetClient(l.Addr().String(), timeout, ioutil.NopCloser(in), out)
-			require.NoError(t, client.Connect())
+			require.NoError(t, client.Connect(context.Background()))
 			defer func() { require.NoError(t, client.Close()) }()
 
 			in.WriteString("hello\n")
