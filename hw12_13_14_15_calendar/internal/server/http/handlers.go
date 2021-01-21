@@ -2,12 +2,13 @@ package internalhttp
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/pkg/apperror"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"net/http"
-	"strconv"
 )
 
 func GetEventHandler(c *gin.Context) {

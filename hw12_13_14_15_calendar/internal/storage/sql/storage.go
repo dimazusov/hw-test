@@ -1,4 +1,3 @@
-//nolint:golint
 package sql
 
 import (
@@ -7,6 +6,7 @@ import (
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/jmoiron/sqlx"
+	// comment
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 )
@@ -79,7 +79,7 @@ func (m *postgresStorage) Create(ctx context.Context, event domain.Event) (newID
 
 	lastID, err := res.LastInsertId()
 	if err != nil {
-		return 0, errors.Wrap(err, "cannot create event")
+		return 0, errors.Wrap(err, "cannot get last id")
 	}
 
 	return uint(lastID), nil
@@ -112,11 +112,11 @@ func (m *postgresStorage) Update(ctx context.Context, event domain.Event) (err e
 
 	affected, err := res.RowsAffected()
 	if err != nil {
-		return errors.Wrap(err, "cannot update event")
+		return errors.Wrap(err, "cannot get update rows affected")
 	}
 
 	if affected == 0 {
-		return errors.Wrap(ErrRecordNotFound, "cannot update event")
+		return ErrRecordNotFound
 	}
 
 	return nil
@@ -127,16 +127,16 @@ func (m *postgresStorage) Delete(ctx context.Context, eventID uint) (err error) 
 
 	res, err := m.conn.ExecContext(ctx, query, eventID)
 	if err != nil {
-		return errors.Wrap(err, "cannot update event")
+		return errors.Wrap(err, "cannot delete event")
 	}
 
 	affected, err := res.RowsAffected()
 	if err != nil {
-		return errors.Wrap(err, "cannot update event")
+		return errors.Wrap(err, "cannot get delete rows affected")
 	}
 
 	if affected == 0 {
-		return errors.Wrap(ErrRecordNotFound, "cannot update event")
+		return ErrRecordNotFound
 	}
 
 	return nil

@@ -23,9 +23,9 @@ RUN CGO_ENABLED=0 go build \
 # На выходе тонкий образ
 FROM alpine:3.9
 
-LABEL ORGANIZATION="OTUS Online Education"
+LABEL ORGANIZATION="DMITRYI USOV INCORPRATED"
 LABEL SERVICE="calendar"
-LABEL MAINTAINERS="student@otus.ru"
+LABEL MAINTAINERS="dimazusov@yandex.ru"
 
 ENV BIN_FILE "/opt/calendar/calendar-app"
 COPY --from=build ${BIN_FILE} ${BIN_FILE}

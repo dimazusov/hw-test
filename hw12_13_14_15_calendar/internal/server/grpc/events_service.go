@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/pkg/apperror"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
@@ -19,15 +20,15 @@ func newEventService(app Application) *EventService {
 	}
 }
 
-func (m EventService) GetEventById(c context.Context, event *pb.Event) (*pb.GetEventRS, error) {
-	ev, err := m.app.GetEventByID(c, uint(event.Id))
+func (m EventService) GetEventByID(c context.Context, event *pb.Event) (*pb.GetEventRS, error) {
+	e, err := m.app.GetEventByID(c, uint(event.Id))
 	if err != nil && !errors.Is(err, apperror.ErrNotFound) {
 		return nil, errors.Wrap(err, "cannot get event")
 	}
 
 	return &pb.GetEventRS{
 		Error: err.Error(),
-		Event: convertDomainEventToPbEvent(ev),
+		Event: convertDomainEventToPbEvent(e),
 	}, nil
 }
 

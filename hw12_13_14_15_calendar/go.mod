@@ -1,6 +1,6 @@
 module github.com/dimazusov/hw-test/hw12_13_14_15_calendar
 
-go 1.14
+go 1.15
 
 require (
 	github.com/gin-gonic/gin v1.6.3

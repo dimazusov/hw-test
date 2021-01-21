@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	Server struct {
-		Http struct {
+		HTTP struct {
 			Host string `config:"host"`
 			Port string `config:"host"`
 		}

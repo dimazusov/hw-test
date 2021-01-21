@@ -3,12 +3,13 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	"google.golang.org/grpc"
-	"log"
-	"net"
 )
 
 type Server struct {

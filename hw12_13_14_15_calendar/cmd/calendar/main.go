@@ -41,7 +41,6 @@ func main() {
 	calendar := app.New(logger, rep.(app.Repository))
 	server := internalhttp.NewServer(config, calendar)
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	go func() {
 		signals := make(chan os.Signal, 1)
@@ -55,14 +54,24 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logger.Error("failed to stop http server: " + err.Error())
+			err = logger.Error("failed to stop http server: " + err.Error())
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}()
 
-	logger.Info("calendar is running...")
+	if err = logger.Info("calendar is running..."); err != nil {
+		log.Println(err)
+	}
 
 	if err := server.Start(ctx); err != nil {
-		logger.Error("failed to start http server: " + err.Error())
+		err = logger.Error("failed to start http server: " + err.Error())
+		if err != nil {
+			log.Println(err)
+		}
+
+		cancel()
 		os.Exit(1)
 	}
 }

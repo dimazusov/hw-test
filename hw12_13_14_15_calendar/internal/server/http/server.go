@@ -2,10 +2,10 @@ package internalhttp
 
 import (
 	"context"
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"net/http"
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/pkg/errors"
 )
 
@@ -36,7 +36,7 @@ func (m *Server) Start(ctx context.Context) error {
 	router := NewGinRouter(m.app)
 
 	m.srv = &http.Server{}
-	m.srv.Addr = m.cfg.Server.Http.Host + ":" + m.cfg.Server.Http.Host
+	m.srv.Addr = m.cfg.Server.HTTP.Host + ":" + m.cfg.Server.HTTP.Host
 	m.srv.Handler = router
 
 	err := m.srv.ListenAndServe()

@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventsClient interface {
-	GetEventById(ctx context.Context, in *Event, opts ...grpc.CallOption) (*GetEventRS, error)
+	GetEventByID(ctx context.Context, in *Event, opts ...grpc.CallOption) (*GetEventRS, error)
 	GetEvents(ctx context.Context, in *Event, opts ...grpc.CallOption) (*GetEventsRS, error)
 	UpdateEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*UpdateEventRS, error)
 	CreateEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*CreateEventRS, error)
@@ -33,9 +33,9 @@ func NewEventsClient(cc grpc.ClientConnInterface) EventsClient {
 	return &eventsClient{cc}
 }
 
-func (c *eventsClient) GetEventById(ctx context.Context, in *Event, opts ...grpc.CallOption) (*GetEventRS, error) {
+func (c *eventsClient) GetEventByID(ctx context.Context, in *Event, opts ...grpc.CallOption) (*GetEventRS, error) {
 	out := new(GetEventRS)
-	err := c.cc.Invoke(ctx, "/event.Events/GetEventById", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/event.Events/GetEventByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (c *eventsClient) DeleteEvent(ctx context.Context, in *Event, opts ...grpc.
 // All implementations must embed UnimplementedEventsServer
 // for forward compatibility
 type EventsServer interface {
-	GetEventById(context.Context, *Event) (*GetEventRS, error)
+	GetEventByID(context.Context, *Event) (*GetEventRS, error)
 	GetEvents(context.Context, *Event) (*GetEventsRS, error)
 	UpdateEvent(context.Context, *Event) (*UpdateEventRS, error)
 	CreateEvent(context.Context, *Event) (*CreateEventRS, error)
@@ -94,8 +94,8 @@ type EventsServer interface {
 type UnimplementedEventsServer struct {
 }
 
-func (UnimplementedEventsServer) GetEventById(context.Context, *Event) (*GetEventRS, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEventById not implemented")
+func (UnimplementedEventsServer) GetEventByID(context.Context, *Event) (*GetEventRS, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventByID not implemented")
 }
 func (UnimplementedEventsServer) GetEvents(context.Context, *Event) (*GetEventsRS, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEvents not implemented")
@@ -122,20 +122,20 @@ func RegisterEventsServer(s grpc.ServiceRegistrar, srv EventsServer) {
 	s.RegisterService(&Events_ServiceDesc, srv)
 }
 
-func _Events_GetEventById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Events_GetEventByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Event)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EventsServer).GetEventById(ctx, in)
+		return srv.(EventsServer).GetEventByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/event.Events/GetEventById",
+		FullMethod: "/event.Events/GetEventByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventsServer).GetEventById(ctx, req.(*Event))
+		return srv.(EventsServer).GetEventByID(ctx, req.(*Event))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -220,8 +220,8 @@ var Events_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*EventsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetEventById",
-			Handler:    _Events_GetEventById_Handler,
+			MethodName: "GetEventByID",
+			Handler:    _Events_GetEventByID_Handler,
 		},
 		{
 			MethodName: "GetEvents",

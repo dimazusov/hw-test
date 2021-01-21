@@ -38,7 +38,7 @@ message DeleteEventRS {
 }
 
 service Events {
-  rpc GetEventById (Event) returns (GetEventRS) {}
+  rpc GetEventByID (Event) returns (GetEventRS) {}
   rpc GetEvents (Event) returns (GetEventsRS) {}
   rpc UpdateEvent (Event) returns (UpdateEventRS) {}
   rpc CreateEvent (Event) returns (CreateEventRS) {}
