@@ -6,7 +6,6 @@ import (
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
 	"github.com/jmoiron/sqlx"
-	// comment
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 )
