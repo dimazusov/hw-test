@@ -3,41 +3,27 @@ package app
 import (
 	"context"
 
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
+	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage"
 )
 
-type app struct {
-	logger Logger
-	rep    Repository
+type App struct {
+	// TODO
 }
 
 type Logger interface {
-	Debug(data interface{}) error
-	Info(data interface{}) error
-	Warn(data interface{}) error
-	Error(data interface{}) error
-	Close() error
+	// TODO
 }
 
-type Repository interface {
-	Create(ctx context.Context, event domain.Event) (newID uint, err error)
-	Update(ctx context.Context, event domain.Event) (err error)
-	Delete(ctx context.Context, eventID uint) (err error)
-	GetEventByID(ctx context.Context, eventID uint) (event domain.Event, err error)
-	GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error)
+type Storage interface {
+	// TODO
 }
 
-type App interface {
-	LogInfo(interface{}) error
+func New(logger Logger, storage Storage) *App {
+	return &App{}
 }
 
-func New(logger Logger, repository Repository) App {
-	return &app{
-		logger: logger,
-		rep:    repository,
-	}
+func (a *App) CreateEvent(ctx context.Context, id string, title string) error {
+	return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
 }
 
-func (m *app) LogInfo(data interface{}) error {
-	return m.logger.Info(data)
-}
+// TODO

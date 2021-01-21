@@ -1,68 +1,45 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"log"
 	"os"
 	"os/signal"
-	"syscall"
-	"time"
 
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/app"
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/http"
-	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
+	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
+	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", `configs/config.yaml`, "Path to configuration file")
+	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
 }
 
 func main() {
-	config, err := config.New(configFile)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	config := NewConfig()
+	logg := logger.New(config.Logger.Level)
 
-	logger, err := logger.New(config.Logger.Path, config.Logger.Level)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	storage := memorystorage.New()
+	calendar := app.New(logg, storage)
 
-	rep, err := storage.NewRepository(config)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	calendar := app.New(logger, rep.(app.Repository))
-	server := internalhttp.NewServer(config, calendar)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	server := internalhttp.NewServer(calendar)
 
 	go func() {
 		signals := make(chan os.Signal, 1)
-		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
+		signal.Notify(signals)
 
 		<-signals
 		signal.Stop(signals)
-		cancel()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logger.Error("failed to stop http server: " + err.Error())
+		if err := server.Stop(); err != nil {
+			logger.Error("failed to stop http server: " + err.String())
 		}
 	}()
 
-	logger.Info("calendar is running...")
-
-	if err := server.Start(ctx); err != nil {
-		logger.Error("failed to start http server: " + err.Error())
+	if err := server.Start(); err != nil {
+		logger.Error("failed to start http server: " + err.String())
 		os.Exit(1)
 	}
 }
