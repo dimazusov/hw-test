@@ -4,10 +4,9 @@ package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
 	"archive/zip"
+	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/require"
 )
 
 const (
