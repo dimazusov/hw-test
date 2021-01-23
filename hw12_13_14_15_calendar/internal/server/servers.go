@@ -63,11 +63,9 @@ func (m servers) StartServers() {
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(m.servs))
-	for i, _ := range m.servs {
-
+	for i := range m.servs {
 		go func(s Server, app app.App) {
 			defer wg.Done()
-
 			if err := s.Start(ctx); err != nil {
 				err = app.LogError("failed to start http server: " + err.Error())
 				if err != nil {
