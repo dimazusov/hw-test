@@ -1,4 +1,4 @@
-package grpc
+package internalgrpc
 
 import (
 	"context"
@@ -12,7 +12,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Server struct {
+type Server interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
+type server struct {
 	addr string
 	srv  *grpc.Server
 }
@@ -27,19 +32,19 @@ type Application interface {
 	GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error)
 }
 
-func NewServer(cfg *config.Config, app Application) *Server {
+func NewServer(cfg *config.Config, app Application) Server {
 	grpcSrv := grpc.NewServer()
 	eventsServer := newEventService(app)
 
 	pb.RegisterEventsServer(grpcSrv, eventsServer)
 
-	return &Server{
+	return &server{
 		srv:  grpcSrv,
 		addr: fmt.Sprintf("%s:%s", cfg.Server.Grpc.Host, cfg.Server.Grpc.Port),
 	}
 }
 
-func (m *Server) Start(ctx context.Context) error {
+func (m *server) Start(ctx context.Context) error {
 	lsn, err := net.Listen("tcp", m.addr)
 	if err != nil {
 		log.Fatal(err)
@@ -53,7 +58,7 @@ func (m *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-func (m *Server) Stop(ctx context.Context) error {
+func (m *server) Stop(ctx context.Context) error {
 	m.srv.Stop()
 	return nil
 }

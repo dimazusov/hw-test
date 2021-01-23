@@ -9,7 +9,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Server struct {
+type Server interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
+type server struct {
 	app Application
 	cfg *config.Config
 	srv *http.Server
@@ -25,14 +30,14 @@ type Application interface {
 	GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error)
 }
 
-func NewServer(cfg *config.Config, app Application) *Server {
-	return &Server{
+func NewServer(cfg *config.Config, app Application) Server {
+	return &server{
 		cfg: cfg,
 		app: app,
 	}
 }
 
-func (m *Server) Start(ctx context.Context) error {
+func (m *server) Start(ctx context.Context) error {
 	router := NewGinRouter(m.app)
 
 	m.srv = &http.Server{}
@@ -47,7 +52,7 @@ func (m *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-func (m *Server) Stop(ctx context.Context) error {
+func (m *server) Stop(ctx context.Context) error {
 	err := m.srv.Shutdown(ctx)
 	if err != nil {
 		return errors.Wrap(err, "cannot shutdown server")
