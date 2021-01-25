@@ -11,8 +11,11 @@ func TestNewConfig(t *testing.T) {
 	require.Nil(t, err)
 	require.NotNil(t, cfg)
 
-	require.Equal(t, "localhost", cfg.Server.Host)
-	require.Equal(t, "81", cfg.Server.Port)
+	require.Equal(t, "localhost", cfg.Server.HTTP.Host)
+	require.Equal(t, "80", cfg.Server.HTTP.Port)
+
+	require.Equal(t, "localhost", cfg.Server.Grpc.Host)
+	require.Equal(t, "5000", cfg.Server.Grpc.Port)
 
 	require.Equal(t, "debug", cfg.Logger.Level)
 	require.Equal(t, "log/log.txt", cfg.Logger.Path)

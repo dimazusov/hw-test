@@ -11,6 +11,9 @@ build:
 run: build
 	$(BIN) -config ./configs/config.yaml
 
+run-with-docker:
+	docker-compose -f deployments/docker-compose.yaml up -d
+
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \

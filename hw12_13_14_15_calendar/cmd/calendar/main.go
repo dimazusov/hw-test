@@ -2,19 +2,19 @@ package main
 
 import (
 	"flag"
-	"log"
-
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"log"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", `configs/config.yaml`, "Path to configuration file")
+	flag.StringVar(&configFile, "config", `confisdgs/config.yaml`, "Path to configuration file")
+	flag.Parse()
 }
 
 func main() {

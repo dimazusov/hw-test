@@ -13,11 +13,11 @@ type Config struct {
 		HTTP struct {
 			Host string `config:"host"`
 			Port string `config:"host"`
-		}
+		} `config:"http"`
 		Grpc struct {
 			Host string `config:"host"`
 			Port string `config:"host"`
-		}
+		} `config:"grpc"`
 	} `config:"server"`
 	Logger struct {
 		Path  string `config:"path"`

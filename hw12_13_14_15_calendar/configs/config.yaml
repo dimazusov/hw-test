@@ -1,9 +1,13 @@
 server:
-  host: "localhost"
-  port: "8000"
+  http:
+    host: "localhost"
+    port: "80"
+  grpc:
+    host: "localhost"
+    port: "40000"
 
 logger:
-  path: "log/log.txt"
+  path: "/log/log.txt"
   level: "debug"
 
 db:
