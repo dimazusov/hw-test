@@ -1,67 +1,74 @@
 package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
-	"encoding/json"
-	"fmt"
+	"bufio"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
-type User struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-	Phone    string
-	Password string
-	Address  string
+type UserEmail struct {
+	Email       string
+	emailDomain string
 }
 
 type DomainStat map[string]int
 
+const ErrMessageReadLine = "cannot read line"
+const ErrMessageUnmarshal = "cannot unmarshal"
+const DefaultDomainStatSize = 700
+
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %s", err)
-	}
-	return countDomains(u, domain)
-}
+	i := 0
+	userEmail := UserEmail{}
+	domainStat := make(DomainStat, DefaultDomainStatSize)
+	bufReader := bufio.NewReader(r)
 
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
-
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+	for {
+		line, _, err := bufReader.ReadLine()
 		if err != nil {
-			return nil, err
+			if errors.Is(err, io.EOF) {
+				return domainStat, nil
+			}
+			return nil, errors.Wrap(err, ErrMessageReadLine)
 		}
 
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+		if err = userEmail.UnmarshalJSON(line); err != nil {
+			return nil, errors.Wrap(err, ErrMessageUnmarshal)
 		}
+
+		if userEmail.IsEmailHasDomain(domain) {
+			domainStat[userEmail.GetEmailDomain()]++
+		}
+
+		i++
 	}
-	return result, nil
+}
+
+func (m *UserEmail) IsEmailHasDomain(domain string) bool {
+	if len(m.Email) == 0 {
+		return false
+	}
+
+	if !strings.Contains(m.Email, "@") {
+		return false
+	}
+
+	fullDomain := strings.ToLower(strings.SplitN(m.Email, "@", 2)[1])
+	m.setEmailDomain(fullDomain)
+
+	if !strings.Contains(fullDomain, ".") {
+		return false
+	}
+
+	return strings.SplitN(fullDomain, ".", 2)[1] == domain
+}
+
+func (m *UserEmail) setEmailDomain(domain string) {
+	m.emailDomain = domain
+}
+
+func (m *UserEmail) GetEmailDomain() string {
+	return m.emailDomain
 }
