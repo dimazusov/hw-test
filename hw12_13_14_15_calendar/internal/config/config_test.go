@@ -18,7 +18,7 @@ func TestNewConfig(t *testing.T) {
 	require.Equal(t, "5000", cfg.Server.Grpc.Port)
 
 	require.Equal(t, "debug", cfg.Logger.Level)
-	require.Equal(t, "log/log.txt", cfg.Logger.Path)
+	require.Equal(t, "/log/log.txt", cfg.Logger.Path)
 
 	require.Equal(t, "postgres", cfg.DB.Postgres.Dialect)
 	require.Equal(t, "host=localhost port=5401 dbname=postgres user=postgres password=postgres sslmode=disable", cfg.DB.Postgres.Dsn)

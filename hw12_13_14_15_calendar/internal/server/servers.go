@@ -2,8 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
-	internalgrpc "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
 	"log"
 	"os"
 	"os/signal"
@@ -12,6 +10,7 @@ import (
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
+	internalgrpc "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/http"
 )
 
@@ -67,8 +66,6 @@ func (m servers) StartServers() {
 	for i := range m.servs {
 		go func(s Server, app app.App) {
 			defer wg.Done()
-
-			fmt.Println("start")
 			if err := s.Start(ctx); err != nil {
 				err = app.LogError("failed to start http server: " + err.Error())
 				if err != nil {
