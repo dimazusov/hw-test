@@ -15,6 +15,8 @@ func init() {
 }
 
 func main() {
+	log.Println("sender run")
+
 	cfg, err := config.New(configFile)
 	if err != nil {
 		log.Fatalln(err)

@@ -23,6 +23,8 @@ func init() {
 }
 
 func main() {
+	log.Println("scheduler run")
+
 	cfg, err := config.New(configFile)
 	if err != nil {
 		log.Fatalln(err)

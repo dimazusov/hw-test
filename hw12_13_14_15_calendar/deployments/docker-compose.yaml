@@ -8,17 +8,40 @@ services:
       - POSTGRES_USER=db
       - POSTGRES_PASSWORD=db
       - POSTGRES_DB=db
-  app:
-    ports:
-        - 80:80
-        - 40000:40000
-    build:
-      dockerfile: ./build/Dockerfile
-      context: ..
-    volumes:
-      - ../log:/log
   rabbitmq:
     image: 'rabbitmq:3.6-management-alpine'
     ports:
       - '5672:5672'
       - '15672:15672'
+  app:
+    ports:
+      - 80:80
+      - 40000:40000
+    build:
+      dockerfile: ./build/calendar/Dockerfile
+      context: ..
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - ../log:/log
+  scheduler:
+    build:
+      dockerfile: ./build/calendar_scheduler/Dockerfile
+      context: ..
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - ../log:/log
+  sender:
+    build:
+      dockerfile: ./build/calendar_sender/Dockerfile
+      context: ..
+    depends_on:
+      - postgres
+      - rabbitmq
+      - scheduler
+    volumes:
+      - ../log:/log
+
