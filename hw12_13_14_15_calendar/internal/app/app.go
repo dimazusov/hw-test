@@ -25,6 +25,7 @@ type Repository interface {
 	Delete(ctx context.Context, eventID uint) (err error)
 	GetEventByID(ctx context.Context, eventID uint) (event domain.Event, err error)
 	GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error)
+	DeleteOldEvents(ctx context.Context, deleteToTime uint) (err error)
 }
 
 type App interface {
@@ -66,4 +67,8 @@ func (m *app) GetEventByID(ctx context.Context, eventID uint) (event domain.Even
 
 func (m *app) GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error) {
 	return m.rep.GetEventsByParams(ctx, params)
+}
+
+func (m *app) DeleteOldEvents(ctx context.Context, timeTo uint) (err error) {
+	return m.rep.DeleteOldEvents(ctx, timeTo)
 }

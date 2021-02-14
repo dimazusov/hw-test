@@ -35,6 +35,10 @@ type Config struct {
 	Repository struct {
 		Type string `config:"type"`
 	} `config:"repository"`
+	Rabbitmq struct {
+		Url string `config:"url"`
+	} `config:"rabbitmq"`
+	EventTimeExpired uint `config:"eventTimeExpired"`
 }
 
 func New(filePath string) (*Config, error) {

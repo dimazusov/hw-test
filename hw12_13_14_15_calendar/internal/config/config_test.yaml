@@ -20,3 +20,7 @@ db:
 repository:
   type: "memory"
 
+rabbitmq:
+  url: "url"
+
+eventTimeExpired: 31536000 # 1 year
