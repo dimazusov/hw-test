@@ -25,6 +25,9 @@ version: build
 test:
 	go test -race ./internal/...
 
+#integration-tests:
+#	go test -race ./internal/...
+
 integration-tests:
 	echo 'integration test'
 

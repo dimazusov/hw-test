@@ -24,7 +24,3 @@ func loggingMiddleware(c *gin.Context, app Application) {
 		log.Println(err)
 	}
 }
-
-func appMiddleware(c *gin.Context, app Application) {
-	c.Set("app", app)
-}

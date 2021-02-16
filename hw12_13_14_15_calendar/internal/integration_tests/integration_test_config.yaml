@@ -1,0 +1,26 @@
+server:
+  http:
+    host: "localhost"
+    port: "8888"
+  grpc:
+    host: "localhost"
+    port: "40000"
+
+logger:
+  path: "../../log/log.txt"
+  level: "debug"
+
+db:
+  postgres:
+    dialect: "postgres"
+    dsn: "host=localhost port=5432 dbname=db user=db password=db sslmode=disable"
+  memory:
+    maxsize: 20
+
+repository:
+  type: "postgres"
+
+rabbitmq:
+  url: "amqp://guest:guest@rabbitmq:5672"
+
+eventtimeexpired: 31536000 #1year

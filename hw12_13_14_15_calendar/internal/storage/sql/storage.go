@@ -63,30 +63,28 @@ func (m *postgresStorage) Close() error {
 }
 
 func (m *postgresStorage) Create(ctx context.Context, event domain.Event) (newID uint, err error) {
+	timestamp := toTimestamp(event.Time)
+	notifTimestamp := toTimestamp(event.NotificationTime)
+
 	params := []interface{}{
 		event.Title,
-		event.Time,
+		timestamp,
 		event.Timezone,
 		event.Duration,
 		event.Description,
 		event.UserID,
-		event.NotificationTime,
+		notifTimestamp,
 	}
 
 	query := "INSERT INTO event (title, time, timezone, duration, description, user_id, notification_time) " +
-		"VALUES ($1, $2, $3, $4, $5, $6, $7);"
+		"VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
 
-	res, err := m.conn.ExecContext(ctx, query, params...)
+	err = m.conn.QueryRowContext(ctx, query, params...).Scan(&newID)
 	if err != nil {
 		return 0, errors.Wrap(err, "cannot create event")
 	}
 
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return 0, errors.Wrap(err, "cannot get last id")
-	}
-
-	return uint(lastID), nil
+	return newID, nil
 }
 
 func (m *postgresStorage) Update(ctx context.Context, event domain.Event) (err error) {

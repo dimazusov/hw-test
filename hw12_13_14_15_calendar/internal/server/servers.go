@@ -78,3 +78,7 @@ func (m servers) StartServers() {
 	}
 	wg.Wait()
 }
+
+func (m servers) StopServers() {
+
+}
