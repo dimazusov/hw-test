@@ -29,7 +29,12 @@ test:
 #	go test -race ./internal/...
 
 integration-tests:
-	echo 'integration test'
+	set -e ;\
+	docker-compose -f deployments/docker-compose.test.yml up --build -d ;\
+	test_status_code=0 ;\
+	docker-compose -f deployments/docker-compose.test.yml run integration_tests go test || test_status_code=$$? ;\
+	docker-compose -f deployments/docker-compose.test.yml down ;\
+	exit $$test_status_code ;
 
 generate:
 	protoc --proto_path=internal/server/grpc --go_out=internal/server/grpc/pb --go-grpc_out=internal/server/grpc/pb internal/server/grpc/*.proto
