@@ -7,18 +7,6 @@ networks:
     driver: bridge
 
 services:
-  integration_tests:
-    build:
-      dockerfile: ./build/calendar_test/Dockerfile
-      context: ..
-    depends_on:
-      - postgres
-      - rabbitmq
-    volumes:
-      - ../log:/log
-    networks:
-      - rabbit
-      - db
   postgres:
     ports:
       - "5432:5432"
@@ -56,6 +44,18 @@ services:
       - postgres
       - rabbitmq
       - scheduler
+    volumes:
+      - ../log:/log
+    networks:
+      - rabbit
+      - db
+  integration_tests:
+    build:
+      dockerfile: ./build/calendar_test/Dockerfile
+      context: ..
+    depends_on:
+      - postgres
+      - rabbitmq
     volumes:
       - ../log:/log
     networks:

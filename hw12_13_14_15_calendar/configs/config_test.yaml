@@ -13,7 +13,7 @@ logger:
 db:
   postgres:
     dialect: "postgres"
-    dsn: "host=localhost port=5432 dbname=db user=db password=db sslmode=disable"
+    dsn: "host=postgres port=5432 dbname=db user=db password=db sslmode=disable"
   memory:
     maxsize: 20
 

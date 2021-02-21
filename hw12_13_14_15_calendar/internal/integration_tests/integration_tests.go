@@ -1,26 +1,47 @@
 package integration_tests
 
 import (
+	"github.com/jmoiron/sqlx"
+	"os"
+	"log"
+	"testing"
+
+	"github.com/pressly/goose"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
-	"testing"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 )
 
-const testConfigPath = "./integration_test_config.yaml"
+const testConfigPath = "../../configs/config_test.yaml"
 const migrationDir = "../../migrations"
 
 func RunTests(t *testing.T) {
-	require.NotEqual(t, 1,1)
+	cfg, err := config.New(testConfigPath)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	//dbContainer, dsn, err := createDB()
-	//defer dbContainer.Terminate(context.Background())
-	//require.Nil(t, err)
+	log.Println(cfg.DB.Postgres.Dialect)
+	log.Println(cfg.DB.Postgres.Dsn)
+
+	conn, err := sqlx.Connect(cfg.DB.Postgres.Dialect, cfg.DB.Postgres.Dsn)
+	require.Nil(t, err)
+
+
+	err = goose.Up(conn.DB, migrationDir)
+	require.Nil(t, err)
+
+	os.Exit(0)
+
+
+
+
+
 
 	//conn, err := getConnDb(dsn)
 	//require.Nil(t, err)
 	//
-	//err = goose.Up(conn.DB, migrationDir)
-	//require.Nil(t, err)
+
 	//
 	//cfg, err := config.New(testConfigPath)
 	//if err != nil {
