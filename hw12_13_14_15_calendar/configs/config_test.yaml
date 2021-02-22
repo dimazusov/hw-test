@@ -1,14 +1,7 @@
 server:
   http:
-    host: "localhost"
+    host: "app"
     port: "80"
-  grpc:
-    host: "localhost"
-    port: "40000"
-
-logger:
-  path: "log/log.txt"
-  level: "debug"
 
 db:
   postgres:
@@ -19,8 +12,3 @@ db:
 
 repository:
   type: "postgres"
-
-rabbitmq:
-  url: "amqp://guest:guest@rabbitmq:5672"
-
-eventtimeexpired: 31536000 #1year
