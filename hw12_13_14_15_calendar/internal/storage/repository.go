@@ -21,6 +21,7 @@ type Repository interface {
 	Delete(ctx context.Context, eventID uint) (err error)
 	GetEventByID(ctx context.Context, eventID uint) (event domain.Event, err error)
 	GetEventsByParams(ctx context.Context, params map[string]interface{}) (events []domain.Event, err error)
+	DeleteOldEvents(ctx context.Context, timeTo uint) (err error)
 }
 
 func NewRepository(cfg *config.Config) (Repository, error) {

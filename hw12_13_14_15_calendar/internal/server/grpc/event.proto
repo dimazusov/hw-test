@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package event;
+option go_package = ".;pb";
+
+message Event {
+  uint32 id = 1;
+  string title = 2;
+  uint32 time = 3;
+  uint32 timezone = 4;
+  uint32 duration = 5;
+  string description = 6;
+  uint32 user_id = 7;
+  uint32 notification_time = 8;
+}
+
+message GetEventRS {
+  Event event = 1;
+  string error = 2;
+}
+
+message GetEventsRS {
+  repeated Event event = 1;
+  string error = 2;
+}
+
+message UpdateEventRS {
+  string error = 1;
+}
+
+message CreateEventRS {
+  uint32 event = 1;
+  string error = 2;
+}
+
+message DeleteEventRS {
+  string error = 1;
+}
+
+service Events {
+  rpc GetEventByID (Event) returns (GetEventRS) {}
+  rpc GetEvents (Event) returns (GetEventsRS) {}
+  rpc UpdateEvent (Event) returns (UpdateEventRS) {}
+  rpc CreateEvent (Event) returns (CreateEventRS) {}
+  rpc DeleteEvent (Event) returns (DeleteEventRS) {}
+}

@@ -1,0 +1,18 @@
+server:
+  http:
+    host: "localhost"
+    port: "80"
+
+logger:
+  path: "/log/log_test.txt"
+  level: "debug"
+
+db:
+  postgres:
+    dialect: "postgres"
+    dsn: "host=postgres port=5432 dbname=db user=db password=db sslmode=disable"
+  memory:
+    maxsize: 20
+
+repository:
+  type: "postgres"

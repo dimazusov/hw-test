@@ -10,8 +10,14 @@ import (
 
 type Config struct {
 	Server struct {
-		Host string `config:"host"`
-		Port string `config:"host"`
+		HTTP struct {
+			Host string `config:"host"`
+			Port string `config:"host"`
+		} `config:"http"`
+		Grpc struct {
+			Host string `config:"host"`
+			Port string `config:"host"`
+		} `config:"grpc"`
 	} `config:"server"`
 	Logger struct {
 		Path  string `config:"path"`
@@ -29,6 +35,10 @@ type Config struct {
 	Repository struct {
 		Type string `config:"type"`
 	} `config:"repository"`
+	Rabbitmq struct {
+		Url string `config:"url"`
+	} `config:"rabbitmq"`
+	EventTimeExpired uint `config:"eventTimeExpired"`
 }
 
 func New(filePath string) (*Config, error) {

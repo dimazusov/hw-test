@@ -1,18 +1,13 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -20,49 +15,27 @@ var configFile string
 
 func init() {
 	flag.StringVar(&configFile, "config", `configs/config.yaml`, "Path to configuration file")
+	flag.Parse()
 }
 
 func main() {
-	config, err := config.New(configFile)
+	cfg, err := config.New(configFile)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	logger, err := logger.New(config.Logger.Path, config.Logger.Level)
+	lg, err := logger.New(cfg.Logger.Path, cfg.Logger.Level)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	rep, err := storage.NewRepository(config)
+	rep, err := storage.NewRepository(cfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	calendar := app.New(logger, rep.(app.Repository))
-	server := internalhttp.NewServer(config, calendar)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	calendar := app.New(lg, rep.(app.Repository))
 
-	go func() {
-		signals := make(chan os.Signal, 1)
-		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
-
-		<-signals
-		signal.Stop(signals)
-		cancel()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logger.Error("failed to stop http server: " + err.Error())
-		}
-	}()
-
-	logger.Info("calendar is running...")
-
-	if err := server.Start(ctx); err != nil {
-		logger.Error("failed to start http server: " + err.Error())
-		os.Exit(1)
-	}
+	servers := server.NewServers(cfg, calendar)
+	servers.StartServers()
 }

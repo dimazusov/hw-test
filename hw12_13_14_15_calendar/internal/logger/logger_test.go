@@ -18,7 +18,8 @@ func TestLogger(t *testing.T) {
 	require.Nil(t, err)
 	require.NotNil(t, logger)
 
-	logger.Info("test, data")
+	err = logger.Info("test, data")
+	require.Nil(t, err)
 
 	file, err := os.Open(filePath)
 	require.Nil(t, err)
