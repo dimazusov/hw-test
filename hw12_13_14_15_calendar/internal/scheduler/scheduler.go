@@ -57,5 +57,5 @@ func (m *scheduler) Run() error {
 
 	wg.Wait()
 
-	return nil
+	return m.taskErr
 }
