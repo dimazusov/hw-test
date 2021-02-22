@@ -2,6 +2,8 @@ package integration_tests
 
 import (
 	"bytes"
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,9 +11,14 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/domain"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/dimazusov/hw-test/hw12_13_14_15_calendar/internal/storage"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
@@ -33,6 +40,30 @@ func RunTests(t *testing.T) {
 	err = goose.Up(conn.DB, migrationDir)
 	require.Nil(t, err)
 
+	truncateEvent(t, conn.DB)
+
+	lg, err := logger.New(cfg.Logger.Path, cfg.Logger.Level)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	rep, err := storage.NewRepository(cfg)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	calendar := app.New(lg, rep.(app.Repository))
+	require.NotNil(t, calendar)
+
+	srv := internalhttp.NewServer(cfg, calendar)
+	require.NotNil(t, srv)
+
+	go func() {
+		srv.Start(context.Background())
+	}()
+
+	time.Sleep(2 * time.Second)
+
 	event := domain.Event{
 		Title:              "title",
 		Time:               1713503896,
@@ -47,6 +78,8 @@ func RunTests(t *testing.T) {
 	event.ID = testCreateEvent(t, cfg, event)
 	testGetEvents(t, cfg, event)
 	testGetEventByID(t, cfg, event)
+
+	srv.Stop(context.Background())
 
 	os.Exit(0)
 }
@@ -123,4 +156,9 @@ func doRequest(t *testing.T, method, url string, body []byte) ([]byte, int) {
 	require.Nil(t, err)
 
 	return b, res.StatusCode
+}
+
+func truncateEvent(t *testing.T, conn *sql.DB) {
+	_, err := conn.Exec("truncate event")
+	require.Nil(t, err)
 }

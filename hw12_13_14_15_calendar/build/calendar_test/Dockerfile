@@ -12,4 +12,5 @@ RUN go mod download
 
 COPY . ${CODE_DIR}
 
-RUN go test cmd/calendar_test/main_test.go
+CMD tail -f /dev/null
+#go test cmd/calendar_test/main_test.go

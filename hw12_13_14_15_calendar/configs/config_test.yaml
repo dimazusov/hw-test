@@ -1,7 +1,11 @@
 server:
   http:
-    host: "app"
+    host: "localhost"
     port: "80"
+
+logger:
+  path: "/log/log_test.txt"
+  level: "debug"
 
 db:
   postgres:

@@ -1,9 +1,9 @@
 server:
   http:
-    host: "localhost"
+    host: "127.0.0.1"
     port: "80"
   grpc:
-    host: "localhost"
+    host: "127.0.0.1"
     port: "40000"
 
 logger:

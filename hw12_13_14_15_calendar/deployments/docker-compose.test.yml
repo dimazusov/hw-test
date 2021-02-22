@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   postgres:
     ports:
@@ -8,18 +9,16 @@ services:
       - POSTGRES_USER=db
       - POSTGRES_PASSWORD=db
       - POSTGRES_DB=db
-  calendar:
-    depends_on:
-      - postgres
-    build:
-      dockerfile: ./build/calendar/Dockerfile
-      context: ..
-    volumes:
-      - ../log:/log
+  rabbitmq:
+    image: 'rabbitmq:3.6-management-alpine'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
   integration_tests:
     build:
       dockerfile: ./build/calendar_test/Dockerfile
       context: ..
     depends_on:
       - postgres
-      - calendar
+    volumes:
+      - ../log:/log
